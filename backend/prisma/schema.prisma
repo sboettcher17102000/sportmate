@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String
+  password  String
+  avatar    String?
+  semester  Int?
+  interests String   @default("")
+  createdAt DateTime @default(now())
+
+  createdEvents  Event[]
+  participations Participation[]
+  friendsAsA     Friendship[]    @relation("FriendA")
+  friendsAsB     Friendship[]    @relation("FriendB")
+}
+
+model Event {
+  id          Int      @id @default(autoincrement())
+  title       String
+  sport       String
+  date        DateTime
+  location    String
+  description String?
+  source      String   @default("user")
+  maxCapacity Int?
+  createdAt   DateTime @default(now())
+
+  creator        User            @relation(fields: [creatorId], references: [id])
+  creatorId      Int
+  participations Participation[]
+}
+
+model Participation {
+  id     Int    @id @default(autoincrement())
+  status String @default("registered")
+
+  user    User  @relation(fields: [userId], references: [id])
+  userId  Int
+  event   Event @relation(fields: [eventId], references: [id])
+  eventId Int
+
+  @@unique([userId, eventId])
+}
+
+model Friendship {
+  id     Int    @id @default(autoincrement())
+  status String @default("pending")
+
+  userA   User @relation("FriendA", fields: [userAId], references: [id])
+  userAId Int
+  userB   User @relation("FriendB", fields: [userBId], references: [id])
+  userBId Int
+
+  @@unique([userAId, userBId])
+}
