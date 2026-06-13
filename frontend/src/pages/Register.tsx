@@ -87,74 +87,76 @@ export default function Register() {
       {([1, 2, 3] as Step[]).map((s) => (
         <span
           key={s}
-          className={`w-2 h-2 rounded-full transition-colors ${s === step ? 'bg-purple-600' : 'bg-gray-300'}`}
+          className={`h-2.5 rounded-full border-2 border-ink transition-all ${s === step ? 'w-6 bg-violet' : 'w-2.5 bg-white'}`}
         />
       ))}
     </div>
   );
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-700 to-blue-600">
+    <div className="min-h-screen flex flex-col">
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-12">
         <div className="w-full max-w-sm">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white">SportMate</h1>
-            <p className="text-purple-200 text-sm mt-1">Dein Hochschulsport-Begleiter</p>
+          <div className="flex flex-col items-center text-center mb-7">
+            <div className="logo-mark w-16 h-16 rounded-[20px] mb-3">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8 text-ink">
+                <path d="M13 3L4 14h6l-1 7 9-11h-6z" />
+              </svg>
+            </div>
+            <h1 className="font-display text-4xl font-extrabold text-ink">SportMate</h1>
+            <p className="font-bold text-ink-2 text-sm mt-1">Dein Hochschulsport-Begleiter</p>
           </div>
 
-          <div className="bg-white rounded-2xl p-6 shadow-xl">
+          <div className="card-pop p-6">
             {dots}
 
             {/* ── Schritt 1 ── */}
             {step === 1 && (
               <>
-                <h2 className="text-xl font-semibold text-gray-800 mb-1">Konto erstellen</h2>
-                <p className="text-xs text-gray-400 mb-5">Schritt 1 von 3</p>
+                <h2 className="font-display text-2xl font-extrabold text-ink mb-1">Konto erstellen</h2>
+                <p className="text-xs font-bold text-ink-2 mb-5">Schritt 1 von 3</p>
                 <form onSubmit={handleStep1} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                    <label className="block font-display text-xs font-extrabold text-ink mb-1.5">Name</label>
                     <input
                       type="text"
                       required
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="input-pop"
                       placeholder="Max Mustermann"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">E-Mail</label>
+                    <label className="block font-display text-xs font-extrabold text-ink mb-1.5">E-Mail</label>
                     <input
                       type="email"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="input-pop"
                       placeholder="max@hs-heilbronn.de"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Passwort</label>
+                    <label className="block font-display text-xs font-extrabold text-ink mb-1.5">Passwort</label>
                     <input
                       type="password"
                       required
                       minLength={6}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="input-pop"
                       placeholder="Mindestens 6 Zeichen"
                     />
                   </div>
-                  <button
-                    type="submit"
-                    className="w-full bg-gradient-to-r from-purple-600 to-blue-500 text-white font-semibold rounded-xl py-3 text-sm hover:opacity-90 transition"
-                  >
+                  <button type="submit" className="btn-pop btn-violet">
                     Weiter →
                   </button>
                 </form>
-                <p className="text-center text-sm text-gray-500 mt-4">
+                <p className="text-center text-sm font-bold text-ink-2 mt-4">
                   Bereits ein Konto?{' '}
-                  <Link to="/login" className="text-purple-600 font-medium hover:underline">
+                  <Link to="/login" className="text-violet font-extrabold hover:underline">
                     Anmelden
                   </Link>
                 </p>
@@ -164,53 +166,53 @@ export default function Register() {
             {/* ── Schritt 2 ── */}
             {step === 2 && (
               <>
-                <h2 className="text-xl font-semibold text-gray-800 mb-1">Profil vervollständigen</h2>
-                <p className="text-xs text-gray-400 mb-5">Schritt 2 von 3 · Alle Felder optional</p>
+                <h2 className="font-display text-2xl font-extrabold text-ink mb-1">Profil vervollständigen</h2>
+                <p className="text-xs font-bold text-ink-2 mb-5">Schritt 2 von 3 · Alle Felder optional</p>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Universität / Hochschule</label>
+                    <label className="block font-display text-xs font-extrabold text-ink mb-1.5">Universität / Hochschule</label>
                     <input
                       type="text"
                       value={university}
                       onChange={(e) => setUniversity(e.target.value)}
-                      className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="input-pop"
                       placeholder="z.B. Hochschule Heilbronn"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Studiengang</label>
+                    <label className="block font-display text-xs font-extrabold text-ink mb-1.5">Studiengang</label>
                     <input
                       type="text"
                       value={studiengang}
                       onChange={(e) => setStudiengang(e.target.value)}
-                      className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="input-pop"
                       placeholder="z.B. Wirtschaftsinformatik"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Semester</label>
+                    <label className="block font-display text-xs font-extrabold text-ink mb-1.5">Semester</label>
                     <input
                       type="number"
                       min={1}
                       max={20}
                       value={semester}
                       onChange={(e) => setSemester(e.target.value)}
-                      className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="input-pop"
                       placeholder="z.B. 3"
                     />
                   </div>
-                  {error && <p className="text-red-500 text-sm">{error}</p>}
+                  {error && <p className="text-coral font-bold text-sm">{error}</p>}
                   <button
                     onClick={() => handleRegister(false)}
                     disabled={loading}
-                    className="w-full bg-gradient-to-r from-purple-600 to-blue-500 text-white font-semibold rounded-xl py-3 text-sm hover:opacity-90 transition disabled:opacity-50"
+                    className="btn-pop btn-violet"
                   >
                     {loading ? 'Wird registriert…' : 'Registrieren'}
                   </button>
                   <button
                     onClick={() => handleRegister(true)}
                     disabled={loading}
-                    className="w-full border border-gray-300 text-gray-500 rounded-xl py-3 text-sm hover:bg-gray-50 transition disabled:opacity-50"
+                    className="btn-pop btn-white"
                   >
                     Überspringen
                   </button>
@@ -221,23 +223,20 @@ export default function Register() {
             {/* ── Schritt 3 ── */}
             {step === 3 && (
               <>
-                <h2 className="text-xl font-semibold text-gray-800 mb-1">Freunde einladen</h2>
-                <p className="text-xs text-gray-400 mb-5">Schritt 3 von 3</p>
+                <h2 className="font-display text-2xl font-extrabold text-ink mb-1">Freunde einladen</h2>
+                <p className="text-xs font-bold text-ink-2 mb-5">Schritt 3 von 3</p>
 
                 {/* Link teilen */}
-                <button
-                  onClick={handleCopyLink}
-                  className="w-full mb-4 flex items-center justify-center gap-2 border border-purple-300 text-purple-600 rounded-xl py-2.5 text-sm font-medium hover:bg-purple-50 transition"
-                >
+                <button onClick={handleCopyLink} className="btn-pop btn-yellow mb-4">
                   {linkCopied ? '✓ Link kopiert!' : '🔗 Einladungslink kopieren'}
                 </button>
 
                 <div className="relative mb-3">
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-200" />
+                    <div className="w-full border-t-2 border-ink/15" />
                   </div>
                   <div className="relative flex justify-center">
-                    <span className="bg-white px-2 text-xs text-gray-400">oder nach Name / E-Mail suchen</span>
+                    <span className="bg-card px-2 text-xs font-bold text-ink-2">oder nach Name / E-Mail suchen</span>
                   </div>
                 </div>
 
@@ -246,7 +245,7 @@ export default function Register() {
                   type="search"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 mb-3"
+                  className="input-pop mb-3"
                   placeholder="Name oder E-Mail…"
                 />
 
@@ -254,20 +253,18 @@ export default function Register() {
                   <ul className="space-y-2 mb-4 max-h-52 overflow-y-auto">
                     {results.map((u) => (
                       <li key={u.id} className="flex items-center gap-3">
-                        <span className="w-8 h-8 rounded-full bg-purple-600 text-white text-[11px] font-semibold flex items-center justify-center flex-shrink-0">
+                        <span className="w-9 h-9 rounded-full bg-violet text-white border-2 border-ink text-[11px] font-extrabold font-display flex items-center justify-center flex-shrink-0">
                           {initials(u.name)}
                         </span>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-800 truncate">{u.name}</p>
-                          <p className="text-xs text-gray-400 truncate">{u.email}</p>
+                          <p className="text-sm font-display font-extrabold text-ink truncate">{u.name}</p>
+                          <p className="text-xs font-bold text-ink-2 truncate">{u.email}</p>
                         </div>
                         <button
                           onClick={() => handleSendRequest(u.id)}
                           disabled={sent.has(u.id)}
-                          className={`flex-shrink-0 text-xs font-medium rounded-full px-3 py-1 transition ${
-                            sent.has(u.id)
-                              ? 'bg-green-100 text-green-700'
-                              : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                          className={`flex-shrink-0 pill ${
+                            sent.has(u.id) ? 'bg-mint text-ink' : 'bg-violet text-white'
                           }`}
                         >
                           {sent.has(u.id) ? '✓ Gesendet' : 'Anfrage senden'}
@@ -277,10 +274,7 @@ export default function Register() {
                   </ul>
                 )}
 
-                <button
-                  onClick={() => navigate('/')}
-                  className="w-full bg-gradient-to-r from-purple-600 to-blue-500 text-white font-semibold rounded-xl py-3 text-sm hover:opacity-90 transition"
-                >
+                <button onClick={() => navigate('/')} className="btn-pop btn-violet">
                   Jetzt starten →
                 </button>
               </>

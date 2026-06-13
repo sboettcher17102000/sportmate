@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import type { Event } from '../../types';
-import { formatDate, formatTime, sportEmoji } from './eventHelpers';
+import { formatDate, formatTime, sportEmoji, sportBg } from './eventHelpers';
 import { joinEvent, leaveEvent } from '../../api/events';
 import { useState } from 'react';
 import FriendAvatars from './FriendAvatars';
@@ -47,42 +47,40 @@ export default function EventCard({ event, onUpdate }: EventCardProps) {
   return (
     <>
     <Link to={`/events/${event.id}`} className="block">
-      <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition">
+      <div className="card-pop p-4">
         <div className="flex items-start gap-3">
-          <span className="text-3xl">{sportEmoji(event.sport)}</span>
-          <div className="flex-1 min-w-0">
+          <span className="badge-pop" style={{ background: sportBg(event.sport) }}>{sportEmoji(event.sport)}</span>
+          <div className="flex-1 min-w-0 pt-0.5">
             <div className="flex items-start justify-between gap-2">
-              <h3 className="font-semibold text-gray-800 text-sm leading-tight">{event.title}</h3>
-              <span className="flex-shrink-0 text-xs bg-purple-100 text-purple-700 rounded-full px-2 py-0.5">
+              <h4 className="font-display text-lg font-extrabold leading-tight text-ink">{event.title}</h4>
+              <span className="pill flex-shrink-0" style={{ background: sportBg(event.sport) }}>
                 {event.sport}
               </span>
             </div>
-            <p className="text-xs text-gray-500 mt-0.5">
+            <p className="font-display text-xs font-bold text-ink-2 mt-0.5">
               {sourceLabel}
-              {event.isPrivate && (
-                <span className="ml-1.5 text-purple-600 font-medium">🔒 Privat</span>
-              )}
+              {event.isPrivate && <span className="ml-1.5 text-violet">· 🔒 Privat</span>}
             </p>
           </div>
         </div>
 
         {event.description && (
-          <p className="text-xs text-gray-500 mt-2 line-clamp-2">{event.description}</p>
+          <p className="text-sm font-semibold text-ink-2 mt-3 line-clamp-2 leading-snug">{event.description}</p>
         )}
 
-        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
-          <span>📅 {formatDate(event.date)}</span>
-          <span>🕐 {formatTime(event.date)} Uhr</span>
+        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-[13px] font-bold text-ink">
+          <span className="flex items-center gap-1.5">📅 {formatDate(event.date)}</span>
+          <span className="flex items-center gap-1.5">🕐 {formatTime(event.date)} Uhr</span>
         </div>
-        <p className="text-xs text-gray-500 mt-1">📍 {event.location}</p>
+        <p className="text-[13px] font-bold text-ink mt-1.5 flex items-center gap-1.5">📍 {event.location}</p>
 
         {event.maxCapacity && fillPercent !== null && (
-          <div className="mt-2 w-full bg-gray-100 rounded-full h-1.5">
-            <div className="bg-blue-500 h-1.5 rounded-full" style={{ width: `${fillPercent}%` }} />
+          <div className="progress-pop mt-3">
+            <i style={{ width: `${fillPercent}%` }} />
           </div>
         )}
 
-        <div className="mt-2 flex items-center justify-between">
+        <div className="mt-3 flex items-center justify-between">
           <FriendAvatars friends={event.friendParticipants ?? []} />
           <button
             onClick={(e) => {
@@ -90,24 +88,24 @@ export default function EventCard({ event, onUpdate }: EventCardProps) {
               e.stopPropagation();
               setModalOpen(true);
             }}
-            className="text-xs text-gray-600 hover:text-purple-600 font-medium"
+            className="font-display text-[13px] font-bold text-ink hover:text-violet"
           >
             👥 {event.participationCount ?? 0}
             {event.maxCapacity ? `/${event.maxCapacity}` : ''} Teilnehmer
           </button>
         </div>
 
-        <button
-          onClick={handleToggle}
-          disabled={loading}
-          className={`mt-3 w-full py-2.5 rounded-xl text-sm font-semibold transition disabled:opacity-50 ${
-            isRegistered
-              ? 'border border-gray-300 text-gray-600 hover:bg-gray-50'
-              : 'bg-gradient-to-r from-purple-600 to-blue-500 text-white hover:opacity-90'
-          }`}
-        >
-          {loading ? '…' : toggleLabel}
-        </button>
+        {isRegistered ? (
+          <button onClick={handleToggle} disabled={loading} className="btn-joined mt-3 w-full disabled:opacity-55">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" className="w-[18px] h-[18px]"><path d="M5 13l4 4L19 7" /></svg>
+            {loading ? '…' : 'Du bist dabei!'}
+          </button>
+        ) : (
+          <button onClick={handleToggle} disabled={loading} className="btn-pop btn-violet mt-3">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" className="w-[18px] h-[18px]"><path d="M12 5v14M5 12h14" /></svg>
+            {loading ? '…' : toggleLabel}
+          </button>
+        )}
 
         {isUniversity && event.externalUrl && (
           <a
@@ -115,7 +113,7 @@ export default function EventCard({ event, onUpdate }: EventCardProps) {
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="mt-2 block w-full py-2.5 rounded-xl text-sm font-semibold text-center border border-purple-300 text-purple-700 hover:bg-purple-50 transition"
+            className="btn-pop btn-white mt-2"
           >
             Beim Hochschulsport anmelden →
           </a>

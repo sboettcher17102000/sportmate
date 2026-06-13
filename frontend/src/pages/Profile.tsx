@@ -5,13 +5,13 @@ import { useAuth } from '../context/AuthContext';
 import { getMyEvents } from '../api/events';
 import { getUserProfile, updateMyProfile } from '../api/friendships';
 import type { Event, User } from '../types';
-import { formatDate, sportEmoji } from '../components/ui/eventHelpers';
+import { formatDate, sportEmoji, sportBg } from '../components/ui/eventHelpers';
 
 const ACHIEVEMENTS = [
-  { emoji: '🌟', title: 'Early Bird', desc: '10 Events besucht' },
-  { emoji: '🏃', title: 'Marathon Master', desc: 'Trollinger Marathon absolviert' },
-  { emoji: '🦋', title: 'Social Butterfly', desc: '5 Freunde eingeladen' },
-  { emoji: '🔥', title: 'Streak King', desc: '7 Tage in Folge aktiv' },
+  { emoji: '🌟', title: 'Early Bird', desc: '10 Events besucht', bg: '#FFF3D1' },
+  { emoji: '🏃', title: 'Marathon Master', desc: 'Trollinger Marathon absolviert', bg: '#FFE0E8' },
+  { emoji: '🦋', title: 'Social Butterfly', desc: '5 Freunde eingeladen', bg: '#EDE7FF' },
+  { emoji: '🔥', title: 'Streak King', desc: '7 Tage in Folge aktiv', bg: '#FFE6D6' },
 ];
 
 export default function Profile() {
@@ -101,135 +101,130 @@ export default function Profile() {
   if (loading) {
     return (
       <AppShell title="Profil">
-        <p className="text-center text-gray-400 text-sm py-12">Lade Profil…</p>
+        <p className="text-center text-ink-2 font-bold text-sm py-12">Lade Profil…</p>
       </AppShell>
     );
   }
 
   return (
-    <AppShell>
-      <div className="space-y-4 pb-6">
-        <div className="bg-gradient-to-r from-purple-700 to-blue-600 px-4 pt-10 pb-6 text-white">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-2xl font-bold">
-                {profileUser?.name?.charAt(0) ?? '?'}
-              </div>
-              <div>
-                <h2 className="text-xl font-bold">{profileUser?.name ?? 'Unbekannt'}</h2>
-                {profileUser?.university && (
-                  <p className="text-sm text-purple-200">{profileUser.university}</p>
-                )}
-                {profileUser?.studiengang && (
-                  <p className="text-sm text-purple-200">{profileUser.studiengang}</p>
-                )}
-                {profileUser?.semester && (
-                  <p className="text-sm text-purple-200">{profileUser.semester}. Semester</p>
-                )}
-              </div>
+    <AppShell noHeader>
+      <div className="app-header accent-violet px-4 pt-10 pb-6">
+        <div className="flex items-start justify-between relative z-30">
+          <div className="flex items-center gap-3">
+            <div className="logo-mark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-ink">
+                <path d="M13 3L4 14h6l-1 7 9-11h-6z" />
+              </svg>
             </div>
-
-            {isOwnProfile && (
-              <div className="relative" ref={menuRef}>
-                <button
-                  onClick={() => setMenuOpen((o) => !o)}
-                  className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition"
-                  title="Einstellungen"
-                >
-                  ⚙️
-                </button>
-
-                {menuOpen && (
-                  <div className="absolute right-0 top-11 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-10 min-w-[180px]">
-                    <button
-                      onClick={openEdit}
-                      className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition flex items-center gap-2"
-                    >
-                      ✏️ Profil bearbeiten
-                    </button>
-                    <div className="border-t border-gray-100" />
-                    <button
-                      onClick={logout}
-                      className="w-full text-left px-4 py-3 text-sm text-red-500 hover:bg-red-50 transition flex items-center gap-2"
-                    >
-                      🚪 Abmelden
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          <div className="grid grid-cols-3 gap-3 mt-5 text-center">
-            <div>
-              <p className="text-2xl font-bold">{events.length}</p>
-              <p className="text-xs text-purple-200">Events</p>
+            <div className="text-white">
+              <h1 className="font-display text-lg font-extrabold leading-none">SportMate</h1>
+              <p className="text-xs font-bold opacity-90">Dein Hochschulsport-Begleiter</p>
             </div>
-            <div>
-              <p className="text-2xl font-bold">87%</p>
-              <p className="text-xs text-purple-200">Anwesenheit</p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold">5</p>
-              <p className="text-xs text-purple-200">Tage Streak</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="px-4 space-y-4">
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <span>🎯</span>
-                <span className="font-semibold text-gray-800 text-sm">Monatsziel</span>
-              </div>
-              <span className="text-xs text-gray-500">5/8 Events</span>
-            </div>
-            <div className="w-full bg-gray-100 rounded-full h-2">
-              <div className="bg-purple-600 h-2 rounded-full" style={{ width: '62.5%' }} />
-            </div>
-            <p className="text-xs text-gray-500 mt-1">Noch 3 Events bis zum Ziel!</p>
           </div>
 
           {isOwnProfile && (
-            <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-              <div className="flex items-center gap-2 mb-3">
-                <span>🏆</span>
-                <h3 className="font-semibold text-gray-800 text-sm">Erfolge</h3>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                {ACHIEVEMENTS.map((a) => (
-                  <div key={a.title} className="bg-yellow-50 rounded-xl p-3">
-                    <span className="text-xl">{a.emoji}</span>
-                    <p className="font-medium text-xs text-gray-800 mt-1">{a.title}</p>
-                    <p className="text-xs text-gray-500">{a.desc}</p>
-                  </div>
-                ))}
-              </div>
+            <div className="relative" ref={menuRef}>
+              <button
+                onClick={() => setMenuOpen((o) => !o)}
+                className="w-11 h-11 rounded-[13px] bg-white border-[2.5px] border-ink grid place-items-center shadow-pop-sm"
+                title="Einstellungen"
+              >
+                ⚙️
+              </button>
+
+              {menuOpen && (
+                <div className="absolute right-0 top-13 mt-2 card-pop overflow-hidden z-20 min-w-[190px]">
+                  <button
+                    onClick={openEdit}
+                    className="w-full text-left px-4 py-3 text-sm font-bold text-ink hover:bg-paper transition flex items-center gap-2"
+                  >
+                    ✏️ Profil bearbeiten
+                  </button>
+                  <div className="border-t-2 border-ink" />
+                  <button
+                    onClick={logout}
+                    className="w-full text-left px-4 py-3 text-sm font-bold text-coral hover:bg-paper transition flex items-center gap-2"
+                  >
+                    🚪 Abmelden
+                  </button>
+                </div>
+              )}
             </div>
           )}
+        </div>
 
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-            <div className="flex items-center gap-2 mb-3">
-              <span>📅</span>
-              <h3 className="font-semibold text-gray-800 text-sm">Nächste Events</h3>
-            </div>
-            {upcoming.length === 0 ? (
-              <p className="text-xs text-gray-400">Keine bevorstehenden Events</p>
-            ) : (
-              <div className="space-y-3">
-                {upcoming.slice(0, 3).map((event) => (
-                  <div key={event.id} className="flex items-center gap-3">
-                    <span className="text-xl">{sportEmoji(event.sport)}</span>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm text-gray-800 truncate">{event.title}</p>
-                      <p className="text-xs text-gray-500">{formatDate(event.date)} · {event.location}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+        <div className="flex items-center gap-4 mt-4 text-white">
+          <div className="w-[68px] h-[68px] rounded-[22px] bg-yellow border-[2.5px] border-ink grid place-items-center font-display text-3xl font-extrabold text-ink shadow-pop -rotate-3">
+            {profileUser?.name?.charAt(0) ?? '?'}
           </div>
+          <div>
+            <h2 className="font-display text-2xl font-extrabold leading-tight">{profileUser?.name ?? 'Unbekannt'}</h2>
+            {profileUser?.university && <p className="text-sm font-bold opacity-90">{profileUser.university}</p>}
+            {profileUser?.studiengang && <p className="text-sm font-bold opacity-90">{profileUser.studiengang}</p>}
+            {profileUser?.semester && <p className="text-sm font-bold opacity-90">{profileUser.semester}. Semester</p>}
+          </div>
+        </div>
+
+        <div className="flex gap-3 mt-5">
+          <div className="flex-1 bg-white border-[2.5px] border-ink rounded-[20px] py-3 text-center shadow-pop-sm">
+            <p className="font-display text-2xl font-extrabold text-ink leading-none">{events.length}</p>
+            <p className="font-display text-[11.5px] font-bold text-ink-2 mt-1">Events</p>
+          </div>
+          <div className="flex-1 bg-white border-[2.5px] border-ink rounded-[20px] py-3 text-center shadow-pop-sm">
+            <p className="font-display text-2xl font-extrabold text-ink leading-none">87%</p>
+            <p className="font-display text-[11.5px] font-bold text-ink-2 mt-1">Anwesenheit</p>
+          </div>
+          <div className="flex-1 bg-white border-[2.5px] border-ink rounded-[20px] py-3 text-center shadow-pop-sm">
+            <p className="font-display text-2xl font-extrabold text-ink leading-none">5🔥</p>
+            <p className="font-display text-[11.5px] font-bold text-ink-2 mt-1">Tage Streak</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="px-4 pt-4 space-y-4">
+        <div className="card-pop p-4">
+          <div className="flex items-center justify-between mb-3">
+            <span className="flex items-center gap-2 font-display font-extrabold text-base text-ink">🎯 Monatsziel</span>
+            <span className="pill bg-violet text-white">5 / 8 Events</span>
+          </div>
+          <div className="progress-pop violet" style={{ height: 16 }}>
+            <i style={{ width: '62.5%' }} />
+          </div>
+          <p className="text-[13px] font-bold text-ink-2 mt-3">Noch <span className="text-violet">3 Events</span> bis zum Ziel — fast geschafft!</p>
+        </div>
+
+        {isOwnProfile && (
+          <div className="card-pop p-4">
+            <div className="flex items-center gap-2 font-display font-extrabold text-base text-ink mb-4">🏆 Erfolge</div>
+            <div className="grid grid-cols-2 gap-3">
+              {ACHIEVEMENTS.map((a, i) => (
+                <div key={a.title} className={`bg-paper border-[2.5px] border-ink rounded-[20px] p-3.5 shadow-pop-sm ${i % 2 === 0 ? '-rotate-1' : 'rotate-1'}`}>
+                  <div className="w-10 h-10 rounded-[13px] border-[2.5px] border-ink grid place-items-center text-xl mb-2.5 shadow-pop-sm" style={{ background: a.bg }}>{a.emoji}</div>
+                  <p className="font-display text-sm font-extrabold text-ink leading-tight">{a.title}</p>
+                  <p className="text-[11.5px] font-bold text-ink-2 mt-0.5">{a.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="card-pop p-4">
+          <div className="flex items-center gap-2 font-display font-extrabold text-base text-ink mb-4">📅 Nächste Events</div>
+          {upcoming.length === 0 ? (
+            <p className="text-sm font-bold text-ink-2">Keine bevorstehenden Events</p>
+          ) : (
+            <div className="space-y-3.5">
+              {upcoming.slice(0, 3).map((event) => (
+                <div key={event.id} className="flex items-center gap-3">
+                  <span className="badge-pop w-11 h-11 text-xl" style={{ background: sportBg(event.sport) }}>{sportEmoji(event.sport)}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-display text-[15px] font-extrabold text-ink leading-tight truncate">{event.title}</p>
+                    <p className="text-xs font-bold text-ink-2">{formatDate(event.date)} · {event.location}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -240,75 +235,41 @@ export default function Profile() {
           onClick={() => setEditOpen(false)}
         >
           <div
-            className="bg-white rounded-2xl w-full max-w-sm shadow-xl"
+            className="card-pop w-full max-w-sm"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-              <h3 className="font-semibold text-gray-800 text-sm">Profil bearbeiten</h3>
+            <div className="flex items-center justify-between px-4 py-3 border-b-2 border-ink">
+              <h3 className="font-display font-extrabold text-ink text-base">Profil bearbeiten</h3>
               <button
                 onClick={() => setEditOpen(false)}
-                className="text-gray-400 hover:text-gray-600 text-lg leading-none"
+                className="text-ink-2 hover:text-ink text-lg leading-none"
               >
                 ✕
               </button>
             </div>
             <form onSubmit={handleSave} className="px-4 py-4 space-y-3">
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Name *</label>
-                <input
-                  type="text"
-                  required
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  className="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
+                <label className="block font-display text-xs font-extrabold text-ink mb-1.5">Name *</label>
+                <input type="text" required value={editName} onChange={(e) => setEditName(e.target.value)} className="input-pop" />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Universität / Hochschule</label>
-                <input
-                  type="text"
-                  value={editUniversity}
-                  onChange={(e) => setEditUniversity(e.target.value)}
-                  className="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  placeholder="z.B. Hochschule Heilbronn"
-                />
+                <label className="block font-display text-xs font-extrabold text-ink mb-1.5">Universität / Hochschule</label>
+                <input type="text" value={editUniversity} onChange={(e) => setEditUniversity(e.target.value)} className="input-pop" placeholder="z.B. Hochschule Heilbronn" />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Studiengang</label>
-                <input
-                  type="text"
-                  value={editStudiengang}
-                  onChange={(e) => setEditStudiengang(e.target.value)}
-                  className="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  placeholder="z.B. Wirtschaftsinformatik"
-                />
+                <label className="block font-display text-xs font-extrabold text-ink mb-1.5">Studiengang</label>
+                <input type="text" value={editStudiengang} onChange={(e) => setEditStudiengang(e.target.value)} className="input-pop" placeholder="z.B. Wirtschaftsinformatik" />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Semester</label>
-                <input
-                  type="number"
-                  min={1}
-                  max={20}
-                  value={editSemester}
-                  onChange={(e) => setEditSemester(e.target.value)}
-                  className="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  placeholder="z.B. 3"
-                />
+                <label className="block font-display text-xs font-extrabold text-ink mb-1.5">Semester</label>
+                <input type="number" min={1} max={20} value={editSemester} onChange={(e) => setEditSemester(e.target.value)} className="input-pop" placeholder="z.B. 3" />
               </div>
-              {editError && <p className="text-red-500 text-xs">{editError}</p>}
-              <div className="flex gap-2 pt-1">
-                <button
-                  type="button"
-                  onClick={() => setEditOpen(false)}
-                  className="flex-1 border border-gray-300 text-gray-600 rounded-xl py-2.5 text-sm hover:bg-gray-50 transition"
-                >
+              {editError && <p className="text-coral font-bold text-xs">{editError}</p>}
+              <div className="flex gap-3 pt-1">
+                <button type="button" onClick={() => setEditOpen(false)} className="btn-pop btn-white flex-1">
                   Abbrechen
                 </button>
-                <button
-                  type="submit"
-                  disabled={editLoading}
-                  className="flex-1 bg-gradient-to-r from-purple-600 to-blue-500 text-white font-semibold rounded-xl py-2.5 text-sm hover:opacity-90 transition disabled:opacity-50"
-                >
+                <button type="submit" disabled={editLoading} className="btn-pop btn-violet flex-1">
                   {editLoading ? '…' : 'Speichern'}
                 </button>
               </div>

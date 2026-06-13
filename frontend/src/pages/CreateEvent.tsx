@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import AppShell from '../components/layout/AppShell';
 import { createEvent } from '../api/events';
 import type { SportCategory } from '../types';
+import { sportBg } from '../components/ui/eventHelpers';
 
 const SPORT_OPTIONS: { label: string; emoji: string; value: SportCategory }[] = [
   { label: 'Volleyball', emoji: '🏐', value: 'Volleyball' },
@@ -56,10 +57,10 @@ export default function CreateEvent() {
   }
 
   return (
-    <AppShell title="Event erstellen" subtitle="Erstelle ein eigenes Sportevent für deine Kommilitonen">
+    <AppShell title="Event erstellen" subtitle="Bring deine Kommilitonen in Bewegung!" accent="coral">
       <div className="px-4 pt-4 pb-8 space-y-4">
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-          <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+        <div className="field-pop">
+          <label className="flex items-center gap-2 font-display text-[15px] font-extrabold text-ink mb-3">
             📋 Event-Titel
           </label>
           <input
@@ -68,36 +69,42 @@ export default function CreateEvent() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="z.B. Volleyball Mixed am Campus"
-            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
+            className="input-pop"
           />
         </div>
 
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-          <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
+        <div className="field-pop">
+          <label className="flex items-center gap-2 font-display text-[15px] font-extrabold text-ink mb-3">
             🏷️ Kategorie
           </label>
-          <div className="grid grid-cols-3 gap-2">
-            {SPORT_OPTIONS.map((opt) => (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => setSport(opt.value)}
-                className={`flex flex-col items-center gap-1 p-3 rounded-xl border text-xs font-medium transition ${
-                  sport === opt.value
-                    ? 'border-purple-500 bg-purple-50 text-purple-700'
-                    : 'border-gray-200 text-gray-600 hover:border-purple-200'
-                }`}
-              >
-                <span className="text-2xl">{opt.emoji}</span>
-                {opt.label}
-              </button>
-            ))}
+          <div className="grid grid-cols-3 gap-2.5">
+            {SPORT_OPTIONS.map((opt) => {
+              const on = sport === opt.value;
+              return (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setSport(opt.value)}
+                  className={`flex flex-col items-center gap-2 p-3 rounded-[20px] border-[2.5px] border-ink font-display text-[12.5px] font-bold shadow-pop-sm transition ${
+                    on ? 'bg-violet text-white' : 'bg-white text-ink'
+                  }`}
+                >
+                  <span
+                    className="w-9 h-9 rounded-[11px] border-2 border-ink grid place-items-center text-lg"
+                    style={{ background: on ? 'rgba(255,255,255,.15)' : sportBg(opt.value) }}
+                  >
+                    {opt.emoji}
+                  </span>
+                  {opt.label}
+                </button>
+              );
+            })}
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+          <div className="field-pop">
+            <label className="flex items-center gap-2 font-display text-[15px] font-extrabold text-ink mb-3">
               📅 Datum
             </label>
             <input
@@ -105,24 +112,24 @@ export default function CreateEvent() {
               required
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
+              className="input-pop"
             />
           </div>
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+          <div className="field-pop">
+            <label className="flex items-center gap-2 font-display text-[15px] font-extrabold text-ink mb-3">
               🕐 Uhrzeit
             </label>
             <input
               type="time"
               value={time}
               onChange={(e) => setTime(e.target.value)}
-              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
+              className="input-pop"
             />
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-          <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+        <div className="field-pop">
+          <label className="flex items-center gap-2 font-display text-[15px] font-extrabold text-ink mb-3">
             📍 Ort
           </label>
           <input
@@ -131,12 +138,12 @@ export default function CreateEvent() {
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             placeholder="z.B. Sporthalle Campus Sontheim"
-            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
+            className="input-pop"
           />
         </div>
 
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-          <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+        <div className="field-pop">
+          <label className="flex items-center gap-2 font-display text-[15px] font-extrabold text-ink mb-3">
             📝 Beschreibung (optional)
           </label>
           <textarea
@@ -144,12 +151,12 @@ export default function CreateEvent() {
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
             placeholder="Kurze Beschreibung des Events…"
-            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none"
+            className="input-pop resize-none"
           />
         </div>
 
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-          <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+        <div className="field-pop">
+          <label className="flex items-center gap-2 font-display text-[15px] font-extrabold text-ink mb-3">
             👥 Max. Teilnehmer (optional)
           </label>
           <input
@@ -158,42 +165,44 @@ export default function CreateEvent() {
             value={maxCapacity}
             onChange={(e) => setMaxCapacity(e.target.value)}
             placeholder="z.B. 20"
-            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
+            className="input-pop"
           />
         </div>
 
         <button
           type="button"
           onClick={() => setIsPrivate((v) => !v)}
-          className="w-full bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between text-left"
+          className="field-pop w-full flex items-center justify-between text-left"
         >
           <span className="flex flex-col">
-            <span className="text-sm font-medium text-gray-700">🔒 Privates Event</span>
-            <span className="text-xs font-normal text-gray-400">
+            <span className="font-display text-[15px] font-extrabold text-ink">🔒 Privates Event</span>
+            <span className="text-xs font-bold text-ink-2">
               Nur für meine Freunde sichtbar
             </span>
           </span>
           <span
-            className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition ${
-              isPrivate ? 'bg-purple-600' : 'bg-gray-300'
+            className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full border-2 border-ink transition ${
+              isPrivate ? 'bg-violet' : 'bg-white'
             }`}
           >
             <span
-              className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition ${
-                isPrivate ? 'translate-x-5' : 'translate-x-0.5'
+              className={`inline-block h-4 w-4 transform rounded-full bg-ink transition ${
+                isPrivate ? 'translate-x-6' : 'translate-x-1'
               }`}
             />
           </span>
         </button>
 
-        {error && <p className="text-red-500 text-sm px-1">{error}</p>}
+        {error && <p className="text-coral font-bold text-sm px-1">{error}</p>}
 
         <button
           onClick={handleSubmit}
           disabled={loading || !title || !sport || !date || !location}
-          className="w-full bg-gradient-to-r from-purple-600 to-blue-500 text-white font-semibold rounded-2xl py-4 text-sm hover:opacity-90 transition disabled:opacity-40"
+          className="btn-pop btn-yellow"
+          style={{ padding: '16px' }}
         >
-          {loading ? 'Wird erstellt…' : 'Event erstellen'}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" className="w-[18px] h-[18px]"><path d="M5 13l4 4L19 7" /></svg>
+          {loading ? 'Wird erstellt…' : 'Event veröffentlichen'}
         </button>
       </div>
     </AppShell>

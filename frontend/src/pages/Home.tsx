@@ -3,6 +3,7 @@ import AppShell from '../components/layout/AppShell';
 import EventCard from '../components/ui/EventCard';
 import { getEvents } from '../api/events';
 import type { Event } from '../types';
+import { sportEmoji, sportBg } from '../components/ui/eventHelpers';
 
 const SOURCE_TABS = [
   { label: 'Alle', value: '' },
@@ -31,53 +32,53 @@ export default function Home() {
   }, [search, activeSource, activeSport]);
 
   return (
-    <AppShell>
-      <div className="px-4 pt-4 space-y-3">
-        <input
-          type="search"
-          placeholder="Events durchsuchen..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-purple-400"
-        />
+    <AppShell title="Hey! 👋" subtitle="Bereit für die nächste Runde?">
+      <div className="px-4 pt-4 space-y-3.5">
+        <div className="card-pop flex items-center gap-3 px-4 py-3">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" className="w-5 h-5 text-ink flex-none"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4-4" /></svg>
+          <input
+            type="search"
+            placeholder="Events durchsuchen…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full bg-transparent outline-none font-bold text-[14.5px] text-ink placeholder:text-ink-2"
+          />
+        </div>
 
         <div className="flex gap-2">
           {SOURCE_TABS.map((tab) => (
             <button
               key={tab.value}
               onClick={() => setActiveSource(tab.value)}
-              className={`px-3 py-1.5 rounded-full text-sm font-medium transition ${
-                activeSource === tab.value
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-white border border-gray-200 text-gray-600 hover:border-purple-300'
-              }`}
+              className={`seg-btn ${activeSource === tab.value ? 'on' : ''}`}
             >
               {tab.label}
             </button>
           ))}
         </div>
 
-        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+        <div className="flex gap-2.5 overflow-x-auto pb-1.5 -mx-1 px-1">
           {SPORT_TAGS.map((sport) => (
             <button
               key={sport}
               onClick={() => setActiveSport(activeSport === sport ? '' : sport)}
-              className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium transition ${
-                activeSport === sport
-                  ? 'bg-purple-100 text-purple-700 border border-purple-300'
-                  : 'bg-white border border-gray-200 text-gray-500 hover:border-purple-200'
-              }`}
+              className={`chip ${activeSport === sport ? 'on' : ''}`}
             >
+              <span className="chip-ci" style={{ background: activeSport === sport ? 'rgba(255,255,255,.15)' : sportBg(sport) }}>
+                {sportEmoji(sport)}
+              </span>
               {sport}
             </button>
           ))}
         </div>
 
-        <p className="text-sm text-gray-500 font-medium">
-          {loading ? 'Lade Events…' : `${events.length} Events verfügbar`}
-        </p>
+        <div className="flex items-center justify-between px-1">
+          <p className="font-display text-base font-extrabold text-ink">
+            {loading ? 'Lade Events…' : <><span className="text-violet">{events.length}</span> Events am Start</>}
+          </p>
+        </div>
 
-        <div className="space-y-3 pb-4">
+        <div className="space-y-3.5 pb-4">
           {events.map((event) => (
             <EventCard key={event.id} event={event} onUpdate={() => {
               getEvents({ source: activeSource || undefined, sport: activeSport || undefined, search: search || undefined })
@@ -85,7 +86,7 @@ export default function Home() {
             }} />
           ))}
           {!loading && events.length === 0 && (
-            <div className="text-center py-12 text-gray-400 text-sm">
+            <div className="text-center py-12 font-bold text-ink-2 text-sm">
               Keine Events gefunden
             </div>
           )}
