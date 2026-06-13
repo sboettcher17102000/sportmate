@@ -61,7 +61,12 @@ export default function Profile() {
               </div>
               <div>
                 <h2 className="text-xl font-bold">{profileUser?.name ?? 'Unbekannt'}</h2>
-                <p className="text-sm text-purple-200">Hochschule Heilbronn</p>
+                {profileUser?.university && (
+                  <p className="text-sm text-purple-200">{profileUser.university}</p>
+                )}
+                {profileUser?.studiengang && (
+                  <p className="text-sm text-purple-200">{profileUser.studiengang}</p>
+                )}
                 {profileUser?.semester && (
                   <p className="text-sm text-purple-200">{profileUser.semester}. Semester</p>
                 )}

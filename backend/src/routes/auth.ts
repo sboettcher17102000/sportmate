@@ -6,7 +6,10 @@ import { signToken } from '../middleware/auth';
 const router = Router();
 
 router.post('/register', async (req: Request, res: Response): Promise<void> => {
-  const { name, email, password } = req.body as { name?: string; email?: string; password?: string };
+  const { name, email, password, university, studiengang, semester } = req.body as {
+    name?: string; email?: string; password?: string;
+    university?: string; studiengang?: string; semester?: number;
+  };
   if (!name || !email || !password) {
     res.status(400).json({ message: 'Name, E-Mail und Passwort sind erforderlich' });
     return;
@@ -22,12 +25,23 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
   }
   const hashed = await bcrypt.hash(password, 10);
   const user = await prisma.user.create({
-    data: { name, email, password: hashed },
+    data: {
+      name, email, password: hashed,
+      university: university || null,
+      studiengang: studiengang || null,
+      semester: semester ? Number(semester) : null,
+    },
   });
   const token = signToken(user.id);
   res.status(201).json({
     token,
-    user: { id: user.id, name: user.name, email: user.email, avatar: user.avatar, semester: user.semester, interests: [] },
+    user: {
+      id: user.id, name: user.name, email: user.email,
+      avatar: user.avatar, semester: user.semester,
+      university: user.university ?? null,
+      studiengang: user.studiengang ?? null,
+      interests: [],
+    },
   });
 });
 

@@ -22,6 +22,8 @@ export interface User {
   email: string;
   avatar?: string;
   semester?: number;
+  university?: string | null;
+  studiengang?: string | null;
   interests: string[];
 }
 

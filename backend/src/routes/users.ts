@@ -11,6 +11,8 @@ function serializeUser(user: any) {
     email: user.email,
     avatar: user.avatar,
     semester: user.semester,
+    university: user.university ?? null,
+    studiengang: user.studiengang ?? null,
     interests: user.interests ? user.interests.split(',').filter(Boolean) : [],
   };
 }
@@ -21,8 +23,8 @@ router.get('/search', authenticate, async (req: AuthRequest, res: Response): Pro
   const users = await prisma.user.findMany({
     where: {
       AND: [
-        { name: { contains: q } },
         { id: { not: req.userId } },
+        { OR: [{ name: { contains: q } }, { email: { contains: q } }] },
       ],
     },
     take: 10,

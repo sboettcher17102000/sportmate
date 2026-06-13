@@ -12,9 +12,11 @@ model User {
   email     String   @unique
   name      String
   password  String
-  avatar    String?
-  semester  Int?
-  interests String   @default("")
+  avatar      String?
+  semester    Int?
+  university  String?
+  studiengang String?
+  interests   String  @default("")
   createdAt DateTime @default(now())
 
   createdEvents  Event[]
