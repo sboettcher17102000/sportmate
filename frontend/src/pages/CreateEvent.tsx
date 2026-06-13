@@ -26,6 +26,7 @@ export default function CreateEvent() {
   const [location, setLocation] = useState('');
   const [description, setDescription] = useState('');
   const [maxCapacity, setMaxCapacity] = useState('');
+  const [isPrivate, setIsPrivate] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -43,6 +44,7 @@ export default function CreateEvent() {
         location,
         description: description || undefined,
         source: 'user',
+        isPrivate,
         maxCapacity: maxCapacity ? parseInt(maxCapacity) : undefined,
       });
       navigate(`/events/${event.id}`);
@@ -159,6 +161,30 @@ export default function CreateEvent() {
             className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
           />
         </div>
+
+        <button
+          type="button"
+          onClick={() => setIsPrivate((v) => !v)}
+          className="w-full bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between text-left"
+        >
+          <span className="flex flex-col">
+            <span className="text-sm font-medium text-gray-700">🔒 Privates Event</span>
+            <span className="text-xs font-normal text-gray-400">
+              Nur für meine Freunde sichtbar
+            </span>
+          </span>
+          <span
+            className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition ${
+              isPrivate ? 'bg-purple-600' : 'bg-gray-300'
+            }`}
+          >
+            <span
+              className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition ${
+                isPrivate ? 'translate-x-5' : 'translate-x-0.5'
+              }`}
+            />
+          </span>
+        </button>
 
         {error && <p className="text-red-500 text-sm px-1">{error}</p>}
 

@@ -41,6 +41,7 @@ export interface Event {
   location: string;
   description?: string;
   source: EventSource;
+  isPrivate?: boolean;
   maxCapacity?: number;
   externalUrl?: string | null;
   creatorId: number;

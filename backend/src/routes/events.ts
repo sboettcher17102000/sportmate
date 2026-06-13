@@ -58,6 +58,7 @@ function serializeEvent(event: any, currentUserId?: number, friendIds?: number[]
     location: event.location,
     description: event.description,
     source: event.source,
+    isPrivate: event.isPrivate ?? false,
     maxCapacity: event.maxCapacity,
     externalUrl: event.externalUrl ?? null,
     creatorId: event.creatorId,
@@ -87,9 +88,21 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response): Promise<v
 
   const events = await prisma.event.findMany({
     where: {
-      ...(source ? { source } : {}),
-      ...(sport ? { sport: { contains: sport } } : {}),
-      ...(search ? { title: { contains: search } } : {}),
+      AND: [
+        {
+          ...(source ? { source } : {}),
+          ...(sport ? { sport: { contains: sport } } : {}),
+          ...(search ? { title: { contains: search } } : {}),
+        },
+        // Private Events nur für Ersteller + dessen Freunde sichtbar
+        {
+          OR: [
+            { isPrivate: false },
+            { creatorId: req.userId },
+            { creatorId: { in: friendIds } },
+          ],
+        },
+      ],
     },
     include: {
       creator: true,
@@ -124,14 +137,19 @@ router.get('/:id', authenticate, async (req: AuthRequest, res: Response): Promis
   });
   if (!event) { res.status(404).json({ message: 'Event nicht gefunden' }); return; }
   const friendIds = await getFriendIds(req.userId!);
+  // Zugriffsschutz für private Events: nur Ersteller + dessen Freunde
+  if (event.isPrivate && event.creatorId !== req.userId && !friendIds.includes(event.creatorId)) {
+    res.status(404).json({ message: 'Event nicht gefunden' });
+    return;
+  }
   res.json(serializeEvent(event, req.userId, friendIds));
 });
 
 router.post('/', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
-  const { title, sport, date, location, description, source, maxCapacity } =
+  const { title, sport, date, location, description, source, maxCapacity, isPrivate } =
     req.body as {
       title?: string; sport?: string; date?: string; location?: string;
-      description?: string; source?: string; maxCapacity?: number;
+      description?: string; source?: string; maxCapacity?: number; isPrivate?: boolean;
     };
   if (!title || !sport || !date || !location) {
     res.status(400).json({ message: 'Titel, Sportart, Datum und Ort sind erforderlich' });
@@ -141,6 +159,7 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response): Promise<
     data: {
       title, sport, date: new Date(date), location,
       description, source: source ?? 'user',
+      isPrivate: isPrivate ?? false,
       maxCapacity: maxCapacity ?? null,
       creatorId: req.userId!,
     },

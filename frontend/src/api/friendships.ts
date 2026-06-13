@@ -28,3 +28,12 @@ export function searchUsers(q: string) {
 export function getUserProfile(id: number) {
   return api.get<User>(`/users/${id}`);
 }
+
+export function updateMyProfile(data: {
+  name?: string;
+  university?: string;
+  studiengang?: string;
+  semester?: number;
+}) {
+  return api.patch<User>('/users/me', data);
+}

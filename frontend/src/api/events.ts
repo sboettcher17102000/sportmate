@@ -31,6 +31,7 @@ export function createEvent(data: {
   location: string;
   description?: string;
   source?: string;
+  isPrivate?: boolean;
   maxCapacity?: number;
 }) {
   return api.post<Event>('/events', data);

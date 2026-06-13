@@ -17,6 +17,26 @@ function serializeUser(user: any) {
   };
 }
 
+router.patch('/me', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
+  const { name, university, studiengang, semester } = req.body as {
+    name?: string; university?: string; studiengang?: string; semester?: number;
+  };
+  if (name !== undefined && !name.trim()) {
+    res.status(400).json({ message: 'Name darf nicht leer sein' });
+    return;
+  }
+  const user = await prisma.user.update({
+    where: { id: req.userId! },
+    data: {
+      ...(name !== undefined ? { name: name.trim() } : {}),
+      university: university !== undefined ? (university.trim() || null) : undefined,
+      studiengang: studiengang !== undefined ? (studiengang.trim() || null) : undefined,
+      semester: semester !== undefined ? (semester ? Number(semester) : null) : undefined,
+    },
+  });
+  res.json(serializeUser(user));
+});
+
 router.get('/search', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
   const q = (req.query.q as string | undefined) ?? '';
   if (q.trim().length < 2) { res.json([]); return; }

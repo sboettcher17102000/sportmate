@@ -6,6 +6,7 @@ import type { Event } from '../types';
 import { formatDate, formatTime, sportEmoji } from '../components/ui/eventHelpers';
 import FriendAvatars from '../components/ui/FriendAvatars';
 import ParticipantsModal from '../components/ui/ParticipantsModal';
+import LocationMap from '../components/ui/LocationMap';
 
 export default function EventDetail() {
   const { id } = useParams<{ id: string }>();
@@ -67,9 +68,14 @@ export default function EventDetail() {
             <span className="text-4xl">{sportEmoji(event.sport)}</span>
             <div>
               <h2 className="text-xl font-bold leading-tight">{event.title}</h2>
-              <span className="text-xs bg-white/20 rounded-full px-2 py-0.5">
-                {event.source === 'university' ? 'Hochschulsport' : event.source === 'external' ? 'Lokales Event' : 'Community'}
-              </span>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-xs bg-white/20 rounded-full px-2 py-0.5">
+                  {event.source === 'university' ? 'Hochschulsport' : event.source === 'external' ? 'Lokales Event' : 'Community'}
+                </span>
+                {event.isPrivate && (
+                  <span className="text-xs bg-white/20 rounded-full px-2 py-0.5">🔒 Privat</span>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -100,6 +106,17 @@ export default function EventDetail() {
               )}
             </div>
           </div>
+
+          <LocationMap location={event.location} />
+
+          <a
+            href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(event.location)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block w-full text-center font-semibold rounded-2xl py-4 text-sm border-2 border-blue-300 text-blue-700 bg-white hover:bg-blue-50 transition"
+          >
+            📍 Route mit Google Maps
+          </a>
 
           {event.friendParticipants && event.friendParticipants.length > 0 && (
             <div className="bg-green-50 rounded-2xl p-4 border border-green-100">

@@ -57,7 +57,12 @@ export default function EventCard({ event, onUpdate }: EventCardProps) {
                 {event.sport}
               </span>
             </div>
-            <p className="text-xs text-gray-500 mt-0.5">{sourceLabel}</p>
+            <p className="text-xs text-gray-500 mt-0.5">
+              {sourceLabel}
+              {event.isPrivate && (
+                <span className="ml-1.5 text-purple-600 font-medium">🔒 Privat</span>
+              )}
+            </p>
           </div>
         </div>
 
