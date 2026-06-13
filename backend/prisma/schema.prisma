@@ -34,6 +34,8 @@ model Event {
   description String?
   source      String   @default("user")
   maxCapacity Int?
+  externalUrl String?
+  externalId  String?  @unique
   createdAt   DateTime @default(now())
 
   creator        User            @relation(fields: [creatorId], references: [id])

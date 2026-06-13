@@ -42,6 +42,7 @@ export interface Event {
   description?: string;
   source: EventSource;
   maxCapacity?: number;
+  externalUrl?: string | null;
   creatorId: number;
   creator?: User;
   participationCount?: number;

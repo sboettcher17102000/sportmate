@@ -59,6 +59,7 @@ function serializeEvent(event: any, currentUserId?: number, friendIds?: number[]
     description: event.description,
     source: event.source,
     maxCapacity: event.maxCapacity,
+    externalUrl: event.externalUrl ?? null,
     creatorId: event.creatorId,
     creator: event.creator
       ? { id: event.creator.id, name: event.creator.name }

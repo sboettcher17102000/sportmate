@@ -39,6 +39,11 @@ export default function EventCard({ event, onUpdate }: EventCardProps) {
     event.source === 'university' ? 'Hochschulsport' :
     event.source === 'external' ? 'Lokales Event' : 'Community';
 
+  const isUniversity = event.source === 'university';
+  const toggleLabel = isUniversity
+    ? (isRegistered ? 'Teilnahme zurückziehen' : 'Ich nehme teil')
+    : (isRegistered ? 'Abgemeldet' : 'Jetzt anmelden');
+
   return (
     <>
     <Link to={`/events/${event.id}`} className="block">
@@ -96,8 +101,20 @@ export default function EventCard({ event, onUpdate }: EventCardProps) {
               : 'bg-gradient-to-r from-purple-600 to-blue-500 text-white hover:opacity-90'
           }`}
         >
-          {loading ? '…' : isRegistered ? 'Abgemeldet' : 'Jetzt anmelden'}
+          {loading ? '…' : toggleLabel}
         </button>
+
+        {isUniversity && event.externalUrl && (
+          <a
+            href={event.externalUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="mt-2 block w-full py-2.5 rounded-xl text-sm font-semibold text-center border border-purple-300 text-purple-700 hover:bg-purple-50 transition"
+          >
+            Beim Hochschulsport anmelden →
+          </a>
+        )}
       </div>
     </Link>
     <ParticipantsModal

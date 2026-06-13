@@ -53,6 +53,10 @@ export default function EventDetail() {
   const fillPercent = event.maxCapacity
     ? Math.min(100, ((event.participationCount ?? 0) / event.maxCapacity) * 100)
     : null;
+  const isUniversity = event.source === 'university';
+  const toggleLabel = isUniversity
+    ? (isRegistered ? 'Teilnahme zurückziehen' : 'Ich nehme teil')
+    : (isRegistered ? 'Abmelden' : 'Jetzt anmelden');
 
   return (
     <AppShell>
@@ -112,8 +116,19 @@ export default function EventDetail() {
                 : 'bg-gradient-to-r from-purple-600 to-blue-500 text-white hover:opacity-90'
             }`}
           >
-            {actionLoading ? '…' : isRegistered ? 'Abmelden' : 'Jetzt anmelden'}
+            {actionLoading ? '…' : toggleLabel}
           </button>
+
+          {isUniversity && event.externalUrl && (
+            <a
+              href={event.externalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-full text-center font-semibold rounded-2xl py-4 text-sm border-2 border-purple-300 text-purple-700 bg-white hover:bg-purple-50 transition"
+            >
+              Beim Hochschulsport anmelden →
+            </a>
+          )}
         </div>
       </div>
 
