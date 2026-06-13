@@ -3,6 +3,8 @@ import type { Event } from '../../types';
 import { formatDate, formatTime, sportEmoji } from './eventHelpers';
 import { joinEvent, leaveEvent } from '../../api/events';
 import { useState } from 'react';
+import FriendAvatars from './FriendAvatars';
+import ParticipantsModal from './ParticipantsModal';
 
 interface EventCardProps {
   event: Event;
@@ -11,6 +13,7 @@ interface EventCardProps {
 
 export default function EventCard({ event, onUpdate }: EventCardProps) {
   const [loading, setLoading] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const isRegistered = event.myStatus === 'registered';
   const fillPercent = event.maxCapacity
@@ -37,6 +40,7 @@ export default function EventCard({ event, onUpdate }: EventCardProps) {
     event.source === 'external' ? 'Lokales Event' : 'Community';
 
   return (
+    <>
     <Link to={`/events/${event.id}`} className="block">
       <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition">
         <div className="flex items-start gap-3">
@@ -62,26 +66,26 @@ export default function EventCard({ event, onUpdate }: EventCardProps) {
         </div>
         <p className="text-xs text-gray-500 mt-1">📍 {event.location}</p>
 
-        {event.maxCapacity && (
-          <div className="mt-2">
-            <div className="flex justify-between text-xs text-gray-500 mb-1">
-              <span>👥 {event.participationCount ?? 0}/{event.maxCapacity} Teilnehmer</span>
-            </div>
-            {fillPercent !== null && (
-              <div className="w-full bg-gray-100 rounded-full h-1.5">
-                <div className="bg-blue-500 h-1.5 rounded-full" style={{ width: `${fillPercent}%` }} />
-              </div>
-            )}
+        {event.maxCapacity && fillPercent !== null && (
+          <div className="mt-2 w-full bg-gray-100 rounded-full h-1.5">
+            <div className="bg-blue-500 h-1.5 rounded-full" style={{ width: `${fillPercent}%` }} />
           </div>
         )}
 
-        {event.friendParticipants && event.friendParticipants.length > 0 && (
-          <div className="mt-2 bg-green-50 rounded-xl px-3 py-1.5">
-            <p className="text-xs text-green-700">
-              ✓ {event.friendParticipants.map((f) => f.name).join(', ')} nehmen teil
-            </p>
-          </div>
-        )}
+        <div className="mt-2 flex items-center justify-between">
+          <FriendAvatars friends={event.friendParticipants ?? []} />
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setModalOpen(true);
+            }}
+            className="text-xs text-gray-600 hover:text-purple-600 font-medium"
+          >
+            👥 {event.participationCount ?? 0}
+            {event.maxCapacity ? `/${event.maxCapacity}` : ''} Teilnehmer
+          </button>
+        </div>
 
         <button
           onClick={handleToggle}
@@ -96,5 +100,11 @@ export default function EventCard({ event, onUpdate }: EventCardProps) {
         </button>
       </div>
     </Link>
+    <ParticipantsModal
+      open={modalOpen}
+      onClose={() => setModalOpen(false)}
+      participants={event.participants ?? []}
+    />
+    </>
   );
 }

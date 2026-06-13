@@ -4,6 +4,8 @@ import AppShell from '../components/layout/AppShell';
 import { getEvent, joinEvent, leaveEvent } from '../api/events';
 import type { Event } from '../types';
 import { formatDate, formatTime, sportEmoji } from '../components/ui/eventHelpers';
+import FriendAvatars from '../components/ui/FriendAvatars';
+import ParticipantsModal from '../components/ui/ParticipantsModal';
 
 export default function EventDetail() {
   const { id } = useParams<{ id: string }>();
@@ -11,6 +13,7 @@ export default function EventDetail() {
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
   function load() {
     if (!id) return;
@@ -78,25 +81,25 @@ export default function EventDetail() {
               <span>🕐 {formatTime(event.date)} Uhr</span>
             </div>
             <p className="text-sm text-gray-600">📍 {event.location}</p>
-            {event.maxCapacity && (
-              <div>
-                <p className="text-sm text-gray-600">
-                  👥 {event.participationCount ?? 0}/{event.maxCapacity} Teilnehmer
-                </p>
-                {fillPercent !== null && (
-                  <div className="w-full bg-gray-100 rounded-full h-1.5 mt-1">
-                    <div className="bg-blue-500 h-1.5 rounded-full" style={{ width: `${fillPercent}%` }} />
-                  </div>
-                )}
-              </div>
-            )}
+            <div>
+              <button
+                onClick={() => setModalOpen(true)}
+                className="text-sm text-gray-600 hover:text-purple-600 font-medium"
+              >
+                👥 {event.participationCount ?? 0}
+                {event.maxCapacity ? `/${event.maxCapacity}` : ''} Teilnehmer
+              </button>
+              {event.maxCapacity && fillPercent !== null && (
+                <div className="w-full bg-gray-100 rounded-full h-1.5 mt-1">
+                  <div className="bg-blue-500 h-1.5 rounded-full" style={{ width: `${fillPercent}%` }} />
+                </div>
+              )}
+            </div>
           </div>
 
           {event.friendParticipants && event.friendParticipants.length > 0 && (
             <div className="bg-green-50 rounded-2xl p-4 border border-green-100">
-              <p className="text-sm text-green-700">
-                ✓ {event.friendParticipants.map((f) => f.name).join(', ')} nehmen teil
-              </p>
+              <FriendAvatars friends={event.friendParticipants} />
             </div>
           )}
 
@@ -113,6 +116,12 @@ export default function EventDetail() {
           </button>
         </div>
       </div>
+
+      <ParticipantsModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        participants={event.participants ?? []}
+      />
     </AppShell>
   );
 }

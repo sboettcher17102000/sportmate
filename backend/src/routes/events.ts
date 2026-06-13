@@ -23,6 +23,33 @@ function serializeEvent(event: any, currentUserId?: number, friendIds?: number[]
         }))
     : [];
 
+  // Datenschutzkonforme Teilnehmerliste: eigener Eintrag als "Du", Freunde mit
+  // echtem Namen, alle anderen anonymisiert als "Teilnehmer N". Echte Namen von
+  // Nicht-Freunden verlassen den Server nicht.
+  const registered = (event.participations ?? []).filter(
+    (p: any) => p.status === 'registered'
+  );
+  const self = registered.filter((p: any) => p.userId === currentUserId);
+  const friends = registered.filter(
+    (p: any) => p.userId !== currentUserId && friendIds?.includes(p.userId)
+  );
+  const others = registered.filter(
+    (p: any) => p.userId !== currentUserId && !friendIds?.includes(p.userId)
+  );
+  const participants = [
+    ...self.map(() => ({ name: 'Du', isSelf: true, isFriend: false })),
+    ...friends.map((p: any) => ({
+      name: p.user.name,
+      isSelf: false,
+      isFriend: true,
+    })),
+    ...others.map((_: any, i: number) => ({
+      name: `Teilnehmer ${i + 1}`,
+      isSelf: false,
+      isFriend: false,
+    })),
+  ];
+
   return {
     id: event.id,
     title: event.title,
@@ -39,6 +66,7 @@ function serializeEvent(event: any, currentUserId?: number, friendIds?: number[]
     participationCount,
     myStatus,
     friendParticipants,
+    participants,
   };
 }
 

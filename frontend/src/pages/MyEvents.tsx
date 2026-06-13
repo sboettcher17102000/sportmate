@@ -4,10 +4,13 @@ import { getMyEvents, leaveEvent } from '../api/events';
 import type { Event } from '../types';
 import { Link } from 'react-router-dom';
 import { formatDate, formatTime, sportEmoji } from '../components/ui/eventHelpers';
+import FriendAvatars from '../components/ui/FriendAvatars';
+import ParticipantsModal from '../components/ui/ParticipantsModal';
 
 export default function MyEvents() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
+  const [modalEventId, setModalEventId] = useState<number | null>(null);
 
   function load() {
     setLoading(true);
@@ -68,6 +71,17 @@ export default function MyEvents() {
                   <span>🕐 {formatTime(event.date)}</span>
                 </div>
                 <p className="text-xs text-gray-500 mt-1">📍 {event.location}</p>
+
+                <div className="mt-3 flex items-center justify-between">
+                  <FriendAvatars friends={event.friendParticipants ?? []} />
+                  <button
+                    onClick={() => setModalEventId(event.id)}
+                    className="text-xs text-gray-600 hover:text-purple-600 font-medium"
+                  >
+                    👥 {event.participationCount ?? 0} Teilnehmer
+                  </button>
+                </div>
+
                 <div className="mt-3 flex gap-2">
                   <Link
                     to={`/events/${event.id}`}
@@ -87,6 +101,14 @@ export default function MyEvents() {
           </div>
         )}
       </div>
+
+      <ParticipantsModal
+        open={modalEventId !== null}
+        onClose={() => setModalEventId(null)}
+        participants={
+          events.find((e) => e.id === modalEventId)?.participants ?? []
+        }
+      />
     </AppShell>
   );
 }

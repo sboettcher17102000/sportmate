@@ -25,6 +25,12 @@ export interface User {
   interests: string[];
 }
 
+export interface EventParticipant {
+  name: string;
+  isSelf: boolean;
+  isFriend: boolean;
+}
+
 export interface Event {
   id: number;
   title: string;
@@ -39,6 +45,7 @@ export interface Event {
   participationCount?: number;
   myStatus?: ParticipationStatus | null;
   friendParticipants?: User[];
+  participants?: EventParticipant[];
 }
 
 export interface Participation {

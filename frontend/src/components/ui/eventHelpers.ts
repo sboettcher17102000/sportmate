@@ -29,3 +29,12 @@ const EMOJI_MAP: Record<string, string> = {
 export function sportEmoji(sport: string): string {
   return EMOJI_MAP[sport] ?? '🏅';
 }
+
+export function initials(name: string): string {
+  return name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase() ?? '')
+    .join('');
+}
