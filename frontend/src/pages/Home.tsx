@@ -1,76 +1,79 @@
 import { useState, useEffect } from 'react';
 import AppShell from '../components/layout/AppShell';
 import EventCard from '../components/ui/EventCard';
+import EventFilterSheet, { SOURCE_TABS } from '../components/ui/EventFilterSheet';
 import { getEvents } from '../api/events';
 import type { Event } from '../types';
-import { sportEmoji, sportBg } from '../components/ui/eventHelpers';
-
-const SOURCE_TABS = [
-  { label: 'Alle', value: '' },
-  { label: 'Hochschulsport', value: 'university' },
-  { label: 'Lokales Event', value: 'external' },
-];
-
-const SPORT_TAGS = ['Laufen', 'Volleyball', 'Yoga', 'Fußball', 'Klettern', 'Wasser', 'Tennis', 'Basketball'];
+import { sportEmoji } from '../components/ui/eventHelpers';
 
 export default function Home() {
   const [events, setEvents] = useState<Event[]>([]);
   const [search, setSearch] = useState('');
   const [activeSource, setActiveSource] = useState('');
-  const [activeSport, setActiveSport] = useState('');
+  const [activeSports, setActiveSports] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sheetOpen, setSheetOpen] = useState(false);
+
+  const sportParam = activeSports.join(',');
 
   useEffect(() => {
     setLoading(true);
     getEvents({
       source: activeSource || undefined,
-      sport: activeSport || undefined,
+      sport: sportParam || undefined,
       search: search || undefined,
     })
       .then(setEvents)
       .finally(() => setLoading(false));
-  }, [search, activeSource, activeSport]);
+  }, [search, activeSource, sportParam]);
+
+  const toggleSport = (sport: string) =>
+    setActiveSports((prev) =>
+      prev.includes(sport) ? prev.filter((s) => s !== sport) : [...prev, sport]
+    );
+
+  const activeCount = (activeSource ? 1 : 0) + activeSports.length;
+  const sourceLabel = SOURCE_TABS.find((t) => t.value === activeSource)?.label;
 
   return (
     <AppShell title="Hey! 👋" subtitle="Bereit für die nächste Runde?">
       <div className="px-4 pt-4 space-y-3.5">
-        <div className="card-pop flex items-center gap-3 px-4 py-3">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" className="w-5 h-5 text-ink flex-none"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4-4" /></svg>
-          <input
-            type="search"
-            placeholder="Events durchsuchen…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-transparent outline-none font-bold text-[14.5px] text-ink placeholder:text-ink-2"
-          />
+        <div className="flex items-stretch gap-3">
+          <div className="card-pop flex flex-1 min-w-0 items-center gap-3 px-4 py-3">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" className="w-5 h-5 text-ink flex-none"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4-4" /></svg>
+            <input
+              type="search"
+              placeholder="Events durchsuchen…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full bg-transparent outline-none font-bold text-[14.5px] text-ink placeholder:text-ink-2"
+            />
+          </div>
+          <button className="filterbtn" onClick={() => setSheetOpen(true)} aria-label="Filter öffnen">
+            {activeCount > 0 && <span className="badge">{activeCount}</span>}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" className="w-[22px] h-[22px]"><path d="M4 6h16M7 12h10M10 18h4" /></svg>
+          </button>
         </div>
 
-        <div className="flex gap-2">
-          {SOURCE_TABS.map((tab) => (
-            <button
-              key={tab.value}
-              onClick={() => setActiveSource(tab.value)}
-              className={`seg-btn ${activeSource === tab.value ? 'on' : ''}`}
-            >
-              {tab.label}
+        {activeCount > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {activeSource && (
+              <button className="afc" onClick={() => setActiveSource('')}>
+                {sourceLabel}
+                <span className="x">✕</span>
+              </button>
+            )}
+            {activeSports.map((sport) => (
+              <button key={sport} className="afc" onClick={() => toggleSport(sport)}>
+                {sportEmoji(sport)} {sport}
+                <span className="x">✕</span>
+              </button>
+            ))}
+            <button className="afc clear" onClick={() => { setActiveSource(''); setActiveSports([]); }}>
+              Alle löschen
             </button>
-          ))}
-        </div>
-
-        <div className="flex gap-2.5 overflow-x-auto pb-1.5 -mx-1 px-1">
-          {SPORT_TAGS.map((sport) => (
-            <button
-              key={sport}
-              onClick={() => setActiveSport(activeSport === sport ? '' : sport)}
-              className={`chip ${activeSport === sport ? 'on' : ''}`}
-            >
-              <span className="chip-ci" style={{ background: activeSport === sport ? 'rgba(255,255,255,.15)' : sportBg(sport) }}>
-                {sportEmoji(sport)}
-              </span>
-              {sport}
-            </button>
-          ))}
-        </div>
+          </div>
+        )}
 
         <div className="flex items-center justify-between px-1">
           <p className="font-display text-base font-extrabold text-ink">
@@ -81,7 +84,7 @@ export default function Home() {
         <div className="space-y-3.5 pb-4">
           {events.map((event) => (
             <EventCard key={event.id} event={event} onUpdate={() => {
-              getEvents({ source: activeSource || undefined, sport: activeSport || undefined, search: search || undefined })
+              getEvents({ source: activeSource || undefined, sport: sportParam || undefined, search: search || undefined })
                 .then(setEvents);
             }} />
           ))}
@@ -92,6 +95,17 @@ export default function Home() {
           )}
         </div>
       </div>
+
+      <EventFilterSheet
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        activeSource={activeSource}
+        setActiveSource={setActiveSource}
+        activeSports={activeSports}
+        toggleSport={toggleSport}
+        setActiveSports={setActiveSports}
+        resultCount={events.length}
+      />
     </AppShell>
   );
 }

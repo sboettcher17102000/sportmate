@@ -309,6 +309,136 @@ body {
     overflow: hidden;
   }
 
+  /* Filter-Button neben der Suchleiste */
+  .filterbtn {
+    position: relative;
+    width: 52px;
+    flex: none;
+    background: var(--color-violet);
+    border: 2.5px solid var(--color-ink);
+    border-radius: 18px;
+    box-shadow: var(--shadow-pop);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    color: #fff;
+  }
+  .filterbtn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 var(--color-ink);
+  }
+  .filterbtn .badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 5px;
+    background: var(--color-coral);
+    border: 2px solid var(--color-ink);
+    border-radius: 999px;
+    color: #fff;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 12px;
+    display: grid;
+    place-items: center;
+    box-shadow: var(--shadow-pop-sm);
+  }
+
+  /* Aktive-Filter-Chips (entfernbar) */
+  .afc {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 12.5px;
+    background: #fff;
+    border: 2px solid var(--color-ink);
+    border-radius: 999px;
+    padding: 6px 8px 6px 12px;
+    box-shadow: var(--shadow-pop-sm);
+    cursor: pointer;
+    color: var(--color-ink);
+  }
+  .afc .x {
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    background: var(--color-ink);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-size: 11px;
+    flex: none;
+  }
+  .afc.clear {
+    background: none;
+    border: none;
+    box-shadow: none;
+    color: var(--color-ink-2);
+    padding: 6px 4px;
+    text-decoration: underline;
+  }
+
+  /* Bottom-Sheet */
+  .sheet {
+    background: var(--color-paper);
+    border: 2.5px solid var(--color-ink);
+    border-bottom: none;
+    border-radius: 32px 32px 0 0;
+    box-shadow: 0 -2px 0 var(--color-ink);
+  }
+  .sheet .grab {
+    width: 48px;
+    height: 6px;
+    border-radius: 999px;
+    background: #d9d4ec;
+    margin: 2px auto 16px;
+  }
+
+  /* Sport-Kachel im Filter-Grid */
+  .sp {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    padding: 13px 4px;
+    background: #fff;
+    border: 2.5px solid var(--color-ink);
+    border-radius: var(--radius-pop);
+    box-shadow: var(--shadow-pop-sm);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 12.5px;
+    color: var(--color-ink);
+    cursor: pointer;
+  }
+  .sp:nth-child(3n + 1) {
+    transform: rotate(-2deg);
+  }
+  .sp:nth-child(3n) {
+    transform: rotate(2deg);
+  }
+  .sp .ci {
+    width: 34px;
+    height: 34px;
+    border-radius: 11px;
+    border: 2px solid var(--color-ink);
+    display: grid;
+    place-items: center;
+    font-size: 18px;
+  }
+  .sp.on {
+    background: var(--color-violet);
+    color: #fff;
+  }
+  .sp.on .ci {
+    border-color: #fff;
+    background: rgba(255, 255, 255, 0.15) !important;
+  }
+
   /* Bottom Tab Bar */
   .tabs-pop {
     background: var(--color-card);

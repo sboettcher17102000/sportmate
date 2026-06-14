@@ -86,12 +86,15 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response): Promise<v
   const { source, sport, search } = req.query as Record<string, string | undefined>;
   const friendIds = await getFriendIds(req.userId!);
 
+  // sport kann mehrere (komma-separierte) Sportarten enthalten -> OR-Filter
+  const sports = sport ? sport.split(',').map((s) => s.trim()).filter(Boolean) : [];
+
   const events = await prisma.event.findMany({
     where: {
       AND: [
         {
           ...(source ? { source } : {}),
-          ...(sport ? { sport: { contains: sport } } : {}),
+          ...(sports.length ? { OR: sports.map((s) => ({ sport: { contains: s } })) } : {}),
           ...(search ? { title: { contains: search } } : {}),
         },
         // Private Events nur für Ersteller + dessen Freunde sichtbar
