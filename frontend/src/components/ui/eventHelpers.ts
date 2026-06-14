@@ -48,6 +48,29 @@ export function sportBg(sport: string): string {
   return SPORT_BG_MAP[sport] ?? '#EDE7FF';
 }
 
+// Relative Zeitangabe für den Aktivitäts-Feed ("vor 2 Std", "gestern", …)
+export function formatRelative(dateStr: string): string {
+  const then = new Date(dateStr).getTime();
+  const diffMin = Math.round((Date.now() - then) / 60000);
+  if (diffMin < 1) return 'gerade eben';
+  if (diffMin < 60) return `vor ${diffMin} Min`;
+  const diffHours = Math.round(diffMin / 60);
+  if (diffHours < 24) return `vor ${diffHours} Std`;
+  const diffDays = Math.round(diffHours / 24);
+  if (diffDays === 1) return 'gestern';
+  if (diffDays < 7) return `vor ${diffDays} Tagen`;
+  return formatDate(dateStr);
+}
+
+// Deterministische Pastellfarbe für farbige Initial-Avatare (Sticker-Pop-Look)
+const AVATAR_BGS = ['#FFD7E4', '#CFE9FF', '#D9F7E6', '#FFE6D6', '#EDE7FF', '#FFF3D1', '#D6F5F0'];
+
+export function avatarBg(name: string): string {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
+  return AVATAR_BGS[hash % AVATAR_BGS.length] as string;
+}
+
 export function initials(name: string): string {
   return name
     .trim()

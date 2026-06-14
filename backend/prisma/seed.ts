@@ -67,6 +67,18 @@ async function main() {
     },
   });
 
+  const lena = await prisma.user.upsert({
+    where: { email: 'lena@hs-heilbronn.de' },
+    update: {},
+    create: {
+      name: 'Lena Bergmann',
+      email: 'lena@hs-heilbronn.de',
+      password,
+      semester: 4,
+      interests: 'Volleyball,Tennis',
+    },
+  });
+
   const eventsData = [
     {
       title: 'Volleyball Mixed',
@@ -164,6 +176,9 @@ async function main() {
     { userId: sarah.id, eventId: createdEvents[5].id },
     { userId: anna.id, eventId: createdEvents[6].id },
     { userId: sarah.id, eventId: createdEvents[6].id },
+    // Lena: nimmt nur an Events teil, in denen Max NICHT ist -> 0 gemeinsame Events
+    { userId: lena.id, eventId: createdEvents[1].id },
+    { userId: lena.id, eventId: createdEvents[5].id },
   ];
 
   for (const p of participationData) {
@@ -189,6 +204,25 @@ async function main() {
     update: {},
     create: { userAId: sarah.id, userBId: max.id, status: 'pending' },
   });
+  await prisma.friendship.upsert({
+    where: { userAId_userBId: { userAId: max.id, userBId: lena.id } },
+    update: {},
+    create: { userAId: max.id, userBId: lena.id, status: 'accepted' },
+  });
+
+  // Aktivitäts-Feed: Beitreten/Verlassen von Max' Freunden mit zurückdatierten
+  // Zeitstempeln, damit der Feed direkt befüllt ist. Erst leeren -> idempotent.
+  const HOUR = 60 * 60 * 1000;
+  await prisma.activity.deleteMany({});
+  const activityData = [
+    { userId: anna.id, eventId: createdEvents[0].id, type: 'join', createdAt: new Date(Date.now() - 2 * HOUR) },
+    { userId: maxW.id, eventId: createdEvents[6].id, type: 'leave', createdAt: new Date(Date.now() - 5 * HOUR) },
+    { userId: lena.id, eventId: createdEvents[1].id, type: 'join', createdAt: new Date(Date.now() - 26 * HOUR) },
+    { userId: anna.id, eventId: createdEvents[6].id, type: 'join', createdAt: new Date(Date.now() - 30 * HOUR) },
+  ];
+  for (const a of activityData) {
+    await prisma.activity.create({ data: a });
+  }
 
   console.log('Seed abgeschlossen ✓');
   console.log('Demo-Accounts:');
@@ -196,6 +230,7 @@ async function main() {
   console.log('  anna@hs-heilbronn.de / password123');
   console.log('  maxw@hs-heilbronn.de / password123');
   console.log('  sarah@hs-heilbronn.de / password123');
+  console.log('  lena@hs-heilbronn.de / password123');
 }
 
 main()

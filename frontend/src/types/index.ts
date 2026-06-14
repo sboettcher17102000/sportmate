@@ -66,7 +66,18 @@ export interface Friendship {
   status: FriendshipStatus;
   userAId: number;
   userBId: number;
+  commonEventsCount?: number;
   friend?: User;
+}
+
+export type ActivityType = 'join' | 'leave';
+
+export interface FriendActivity {
+  id: number;
+  type: ActivityType;
+  createdAt: string;
+  friend: { id: number; name: string; avatar?: string | null };
+  event: { id: number; title: string; sport: SportCategory };
 }
 
 export interface AuthResponse {

@@ -1,8 +1,12 @@
 import { api } from './client';
-import type { Friendship, User } from '../types';
+import type { Friendship, FriendActivity, User } from '../types';
 
 export function getFriends() {
   return api.get<Friendship[]>('/friendships');
+}
+
+export function getFriendActivity() {
+  return api.get<FriendActivity[]>('/friendships/activity');
 }
 
 export function getPendingRequests() {

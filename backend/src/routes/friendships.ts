@@ -4,13 +4,14 @@ import { authenticate, type AuthRequest } from '../middleware/auth';
 
 const router = Router();
 
-function serializeFriendship(f: any, currentUserId: number) {
+function serializeFriendship(f: any, currentUserId: number, commonEventsCount = 0) {
   const friend = f.userAId === currentUserId ? f.userB : f.userA;
   return {
     id: f.id,
     status: f.status,
     userAId: f.userAId,
     userBId: f.userBId,
+    commonEventsCount,
     friend: friend
       ? {
           id: friend.id,
@@ -36,7 +37,69 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response): Promise<v
     },
     include: INCLUDE_USERS,
   });
-  res.json(friendships.map((f) => serializeFriendship(f, req.userId!)));
+
+  // Gemeinsame Events je Freund ableiten: Schnittmenge der "registered"-Events
+  // des aktuellen Nutzers mit denen der Freunde – ohne neue DB-Felder.
+  const friendIds = friendships.map((f) =>
+    f.userAId === req.userId ? f.userBId : f.userAId
+  );
+  const myEvents = await prisma.participation.findMany({
+    where: { userId: req.userId!, status: 'registered' },
+    select: { eventId: true },
+  });
+  const myEventIds = new Set(myEvents.map((p) => p.eventId));
+
+  const friendParticipations = friendIds.length
+    ? await prisma.participation.findMany({
+        where: {
+          userId: { in: friendIds },
+          status: 'registered',
+          eventId: { in: [...myEventIds] },
+        },
+        select: { userId: true },
+      })
+    : [];
+  const commonCounts = new Map<number, number>();
+  for (const p of friendParticipations) {
+    commonCounts.set(p.userId, (commonCounts.get(p.userId) ?? 0) + 1);
+  }
+
+  res.json(
+    friendships.map((f) => {
+      const friendId = f.userAId === req.userId ? f.userBId : f.userAId;
+      return serializeFriendship(f, req.userId!, commonCounts.get(friendId) ?? 0);
+    })
+  );
+});
+
+router.get('/activity', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
+  const friendships = await prisma.friendship.findMany({
+    where: {
+      status: 'accepted',
+      OR: [{ userAId: req.userId }, { userBId: req.userId }],
+    },
+  });
+  const friendIds = friendships.map((f) =>
+    f.userAId === req.userId ? f.userBId : f.userAId
+  );
+  if (!friendIds.length) { res.json([]); return; }
+
+  const activities = await prisma.activity.findMany({
+    where: { userId: { in: friendIds } },
+    include: { user: true, event: true },
+    orderBy: { createdAt: 'desc' },
+    take: 30,
+  });
+
+  res.json(
+    activities.map((a) => ({
+      id: a.id,
+      type: a.type,
+      createdAt: a.createdAt,
+      friend: { id: a.user.id, name: a.user.name, avatar: a.user.avatar },
+      event: { id: a.event.id, title: a.event.title, sport: a.event.sport },
+    }))
+  );
 });
 
 router.get('/pending', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {

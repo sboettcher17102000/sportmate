@@ -184,21 +184,33 @@ router.post('/:id/join', authenticate, async (req: AuthRequest, res: Response): 
       where: { userId_eventId: { userId: req.userId!, eventId } },
       data: { status: 'registered' },
     });
+    await prisma.activity.create({
+      data: { userId: req.userId!, eventId, type: 'join' },
+    });
     res.json(updated);
     return;
   }
   const participation = await prisma.participation.create({
     data: { userId: req.userId!, eventId, status: 'registered' },
   });
+  await prisma.activity.create({
+    data: { userId: req.userId!, eventId, type: 'join' },
+  });
   res.status(201).json(participation);
 });
 
 router.delete('/:id/join', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
   const eventId = parseInt(req.params.id as string);
-  await prisma.participation.updateMany({
+  const result = await prisma.participation.updateMany({
     where: { userId: req.userId!, eventId },
     data: { status: 'cancelled' },
   });
+  // Nur loggen, wenn tatsächlich eine Teilnahme abgemeldet wurde
+  if (result.count > 0) {
+    await prisma.activity.create({
+      data: { userId: req.userId!, eventId, type: 'leave' },
+    });
+  }
   res.json({ message: 'Abgemeldet' });
 });
 

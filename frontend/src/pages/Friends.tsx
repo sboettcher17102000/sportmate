@@ -3,37 +3,43 @@ import AppShell from '../components/layout/AppShell';
 import {
   getFriends,
   getPendingRequests,
+  getFriendActivity,
   acceptFriendRequest,
   declineFriendRequest,
-  searchUsers,
-  sendFriendRequest,
 } from '../api/friendships';
-import type { Friendship, User } from '../types';
-import { Link } from 'react-router-dom';
+import type { Friendship, FriendActivity } from '../types';
 import { initials } from '../components/ui/eventHelpers';
+import AddFriendSheet from '../components/ui/AddFriendSheet';
+import QrScannerSheet from '../components/ui/QrScannerSheet';
+import FriendActivityItem from '../components/ui/FriendActivityItem';
+import FriendListRow from '../components/ui/FriendListRow';
+
+type Tab = 'activity' | 'list';
 
 export default function Friends() {
   const [friends, setFriends] = useState<Friendship[]>([]);
   const [pending, setPending] = useState<Friendship[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<User[]>([]);
+  const [activity, setActivity] = useState<FriendActivity[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [tab, setTab] = useState<Tab>('activity');
+  const [search, setSearch] = useState('');
+  const [addOpen, setAddOpen] = useState(false);
+  const [scanOpen, setScanOpen] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+
   function loadAll() {
-    Promise.all([getFriends(), getPendingRequests()])
-      .then(([f, p]) => { setFriends(f); setPending(p); })
+    Promise.all([getFriends(), getPendingRequests(), getFriendActivity()])
+      .then(([f, p, a]) => { setFriends(f); setPending(p); setActivity(a); })
       .finally(() => setLoading(false));
   }
 
   useEffect(loadAll, []);
 
-  useEffect(() => {
-    if (searchQuery.trim().length < 2) { setSearchResults([]); return; }
-    const t = setTimeout(() => {
-      searchUsers(searchQuery).then(setSearchResults);
-    }, 300);
-    return () => clearTimeout(t);
-  }, [searchQuery]);
+  function notify(msg: string) {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2000);
+  }
 
   async function handleAccept(id: number) {
     await acceptFriendRequest(id);
@@ -45,20 +51,32 @@ export default function Friends() {
     loadAll();
   }
 
-  async function handleAddFriend(userId: number) {
-    await sendFriendRequest(userId);
-    setSearchResults((prev) => prev.filter((u) => u.id !== userId));
-  }
+  const q = search.trim().toLowerCase();
+  const filteredFriends = q
+    ? friends.filter((f) => f.friend?.name.toLowerCase().includes(q))
+    : friends;
+  const filteredActivity = q
+    ? activity.filter((a) => a.friend.name.toLowerCase().includes(q))
+    : activity;
 
   return (
     <AppShell
       title="Freunde"
-      subtitle={`${friends.length} Freunde`}
+      subtitle={`${friends.length} ${friends.length === 1 ? 'Freund' : 'Freunde'}`}
       accent="sky"
       action={
-        <div className="ic-btn w-11 h-11 rounded-[13px] bg-white border-[2.5px] border-ink grid place-items-center shadow-pop-sm">
-          <span className="text-lg">👥</span>
-        </div>
+        <button
+          onClick={() => setScanOpen(true)}
+          className="w-11 h-11 rounded-[13px] bg-white border-[2.5px] border-ink grid place-items-center shadow-pop-sm"
+          aria-label="QR-Code scannen"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" className="w-5 h-5 text-ink">
+            <rect x="4" y="4" width="7" height="7" rx="1.5" />
+            <rect x="13" y="4" width="7" height="7" rx="1.5" />
+            <rect x="4" y="13" width="7" height="7" rx="1.5" />
+            <path d="M14 17h6M17 14v6" />
+          </svg>
+        </button>
       }
     >
       <div className="px-4 pt-4 space-y-4">
@@ -73,7 +91,7 @@ export default function Friends() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-display font-extrabold text-sm text-ink">{req.friend?.name}</p>
-                    <p className="text-xs font-bold text-ink-2">3 gemeinsame Freunde</p>
+                    <p className="text-xs font-bold text-ink-2">möchte dich hinzufügen</p>
                   </div>
                   <div className="flex gap-2">
                     <button
@@ -95,39 +113,25 @@ export default function Friends() {
           </div>
         )}
 
+        {/* Suche (filtert Freunde / Aktivität) */}
         <div className="card-pop flex items-center gap-3 px-4 py-3">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" className="w-5 h-5 text-ink flex-none"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4-4" /></svg>
           <input
             type="search"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
             placeholder="Freunde durchsuchen…"
             className="w-full bg-transparent outline-none font-bold text-[14.5px] text-ink placeholder:text-ink-2"
           />
         </div>
 
-        {searchResults.length > 0 && (
-          <div className="card-pop p-4 space-y-3">
-            <p className="font-display text-xs font-extrabold text-ink-2 uppercase tracking-wide">Suchergebnisse</p>
-            {searchResults.map((user) => (
-              <div key={user.id} className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-full bg-sky text-ink border-2 border-ink flex items-center justify-center font-display font-extrabold text-sm">
-                  {initials(user.name)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-display font-extrabold text-sm text-ink">{user.name}</p>
-                  {user.semester && <p className="text-xs font-bold text-ink-2">{user.semester}. Semester</p>}
-                </div>
-                <button
-                  onClick={() => handleAddFriend(user.id)}
-                  className="btn-pop btn-violet w-auto px-4 py-2 text-[13px]"
-                >
-                  Hinzufügen
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
+        {/* Primär-Button – in jedem Zustand sichtbar */}
+        <button onClick={() => setAddOpen(true)} className="btn-pop btn-violet">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" className="w-[19px] h-[19px]">
+            <path d="M19 4v6M16 7h6" /><circle cx="9" cy="8" r="3" /><path d="M3 20a6 6 0 0112 0" />
+          </svg>
+          Freunde hinzufügen
+        </button>
 
         {loading ? (
           <p className="text-sm font-bold text-ink-2 text-center py-8">Lade Freunde…</p>
@@ -142,36 +146,63 @@ export default function Friends() {
             </p>
           </div>
         ) : (
-          <div className="space-y-3.5">
-            {friends.map((f) => (
-              <div key={f.id} className="card-pop p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-[16px] bg-yellow text-ink border-[2.5px] border-ink flex items-center justify-center font-display font-extrabold shadow-pop-sm -rotate-3">
-                    {initials(f.friend?.name ?? '?')}
+          <>
+            <div className="flex gap-2">
+              <button onClick={() => setTab('activity')} className={`seg-btn ${tab === 'activity' ? 'on' : ''}`}>
+                Aktivität
+              </button>
+              <button
+                onClick={() => setTab('list')}
+                className={`seg-btn flex items-center justify-center gap-1.5 ${tab === 'list' ? 'on' : ''}`}
+              >
+                Freunde
+                <span className="text-[11px] bg-yellow text-ink border-2 border-ink rounded-full px-1.5 min-w-[20px]">
+                  {friends.length}
+                </span>
+              </button>
+            </div>
+
+            {tab === 'activity' ? (
+              filteredActivity.length === 0 ? (
+                <div className="flex flex-col items-center text-center gap-2 py-10 px-6">
+                  <div className="w-20 h-20 rounded-[24px] bg-mint border-[2.5px] border-ink grid place-items-center shadow-pop-lg -rotate-3 mb-2 text-4xl">
+                    🌱
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-display font-extrabold text-lg text-ink leading-tight">{f.friend?.name}</p>
-                    {f.friend?.semester && (
-                      <p className="text-xs font-bold text-ink-2">{f.friend.semester}. Semester</p>
-                    )}
-                  </div>
+                  <h4 className="font-display text-lg font-extrabold text-ink">Noch ruhig hier</h4>
+                  <p className="text-sm font-semibold text-ink-2 max-w-[260px] leading-relaxed">
+                    Sei der Erste und tritt einem Event bei!
+                  </p>
                 </div>
-                <div className="mt-3.5 flex gap-3">
-                  <Link
-                    to={`/profile/${f.friend?.id}`}
-                    className="btn-pop btn-violet flex-1"
-                  >
-                    Profil ansehen
-                  </Link>
-                  <button className="btn-pop btn-white flex-1">
-                    Einladen
-                  </button>
+              ) : (
+                <div className="space-y-3">
+                  {filteredActivity.map((a) => (
+                    <FriendActivityItem key={a.id} activity={a} />
+                  ))}
                 </div>
+              )
+            ) : (
+              <div className="space-y-3.5">
+                {filteredFriends.map((f) => (
+                  <FriendListRow
+                    key={f.id}
+                    friendship={f}
+                    onInvite={(fr) => notify(`Einladung an ${fr.friend?.name ?? 'Freund'} gesendet (Demo)`)}
+                  />
+                ))}
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </div>
+
+      <AddFriendSheet open={addOpen} onClose={() => setAddOpen(false)} />
+      <QrScannerSheet open={scanOpen} onClose={() => setScanOpen(false)} />
+
+      {toast && (
+        <div className="fixed bottom-28 left-1/2 -translate-x-1/2 z-[70] bg-ink text-white font-display font-bold text-sm px-4 py-2.5 rounded-full shadow-pop-sm">
+          {toast}
+        </div>
+      )}
     </AppShell>
   );
 }
