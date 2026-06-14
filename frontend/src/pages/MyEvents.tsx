@@ -3,7 +3,7 @@ import AppShell from '../components/layout/AppShell';
 import { getMyEvents, leaveEvent } from '../api/events';
 import type { Event } from '../types';
 import { Link } from 'react-router-dom';
-import { formatDate, formatTime, sportEmoji } from '../components/ui/eventHelpers';
+import { formatDate, formatTime, sportEmoji, sportBg } from '../components/ui/eventHelpers';
 import FriendAvatars from '../components/ui/FriendAvatars';
 import ParticipantsModal from '../components/ui/ParticipantsModal';
 
@@ -30,68 +30,68 @@ export default function MyEvents() {
   const attendanceRate = events.length > 0 ? 100 : 0;
 
   return (
-    <AppShell title="Meine Events">
+    <AppShell title="Meine Events" subtitle="Deine Anmeldungen auf einen Blick." accent="teal">
       <div className="px-4 pt-4 space-y-4">
         <div className="grid grid-cols-2 gap-3">
-          <div className="bg-purple-600 text-white rounded-2xl p-4">
-            <p className="text-xs opacity-80">Anstehende Events</p>
-            <p className="text-3xl font-bold mt-1">{upcoming.length}</p>
+          <div className="stat-pop bg-violet text-white">
+            <span className="absolute right-2.5 top-2 text-2xl rotate-12">📅</span>
+            <p className="font-display text-[13px] font-bold">Anstehende Events</p>
+            <p className="font-display text-[38px] font-extrabold leading-none mt-1">{upcoming.length}</p>
           </div>
-          <div className="bg-green-500 text-white rounded-2xl p-4">
-            <p className="text-xs opacity-80">Anwesenheit</p>
-            <p className="text-3xl font-bold mt-1">{attendanceRate}%</p>
+          <div className="stat-pop bg-yellow text-ink">
+            <span className="absolute right-2.5 top-2 text-2xl rotate-12">💪</span>
+            <p className="font-display text-[13px] font-bold">Anwesenheit</p>
+            <p className="font-display text-[38px] font-extrabold leading-none mt-1">{attendanceRate}%</p>
           </div>
         </div>
 
-        <h3 className="font-semibold text-gray-800">Anstehende Events</h3>
+        <h3 className="font-display text-xl font-extrabold text-ink px-1">Anstehende Events</h3>
 
         {loading ? (
-          <p className="text-sm text-gray-400 text-center py-8">Lade Events…</p>
+          <p className="text-sm font-bold text-ink-2 text-center py-8">Lade Events…</p>
         ) : upcoming.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-400 text-sm mb-3">Du bist noch bei keinem Event angemeldet.</p>
-            <Link to="/" className="text-purple-600 font-medium text-sm">Events entdecken →</Link>
+            <p className="text-ink-2 font-bold text-sm mb-3">Du bist noch bei keinem Event angemeldet.</p>
+            <Link to="/" className="text-violet font-display font-extrabold text-sm">Events entdecken →</Link>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-3.5">
             {upcoming.map((event) => (
-              <div key={event.id} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">{sportEmoji(event.sport)}</span>
-                    <div>
-                      <p className="font-semibold text-gray-800 text-sm">{event.title}</p>
-                      <p className="text-xs text-gray-500">{event.sport}</p>
-                    </div>
+              <div key={event.id} className="card-pop p-4">
+                <div className="flex items-center gap-3">
+                  <span className="badge-pop" style={{ background: sportBg(event.sport) }}>{sportEmoji(event.sport)}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-display text-lg font-extrabold text-ink leading-tight">{event.title}</p>
+                    <p className="font-display text-xs font-bold text-ink-2">{event.sport}</p>
                   </div>
-                  <span className="text-xs text-gray-400">🔔 An</span>
+                  <span className="pill bg-mint flex items-center gap-1">🔔 An</span>
                 </div>
-                <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
-                  <span>📅 {formatDate(event.date)}</span>
-                  <span>🕐 {formatTime(event.date)}</span>
+                <div className="mt-3.5 flex flex-wrap gap-x-4 gap-y-1.5 text-[13px] font-bold text-ink">
+                  <span className="flex items-center gap-1.5">📅 {formatDate(event.date)}</span>
+                  <span className="flex items-center gap-1.5">🕐 {formatTime(event.date)}</span>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">📍 {event.location}</p>
+                <p className="text-[13px] font-bold text-ink mt-1.5 flex items-center gap-1.5">📍 {event.location}</p>
 
                 <div className="mt-3 flex items-center justify-between">
                   <FriendAvatars friends={event.friendParticipants ?? []} />
                   <button
                     onClick={() => setModalEventId(event.id)}
-                    className="text-xs text-gray-600 hover:text-purple-600 font-medium"
+                    className="font-display text-[13px] font-bold text-ink hover:text-violet"
                   >
                     👥 {event.participationCount ?? 0} Teilnehmer
                   </button>
                 </div>
 
-                <div className="mt-3 flex gap-2">
+                <div className="mt-3.5 flex gap-3">
                   <Link
                     to={`/events/${event.id}`}
-                    className="flex-1 bg-blue-600 text-white text-xs font-medium rounded-xl py-2 text-center hover:bg-blue-700 transition"
+                    className="btn-pop btn-violet flex-1"
                   >
-                    Details ansehen
+                    Details
                   </Link>
                   <button
                     onClick={() => handleLeave(event.id)}
-                    className="px-4 py-2 border border-red-400 text-red-500 text-xs font-medium rounded-xl hover:bg-red-50 transition"
+                    className="btn-pop btn-coral flex-none w-auto px-5"
                   >
                     Abmelden
                   </button>

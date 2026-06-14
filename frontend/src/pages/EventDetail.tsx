@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import AppShell from '../components/layout/AppShell';
 import { getEvent, joinEvent, leaveEvent } from '../api/events';
 import type { Event } from '../types';
-import { formatDate, formatTime, sportEmoji } from '../components/ui/eventHelpers';
+import { formatDate, formatTime, sportEmoji, sportBg } from '../components/ui/eventHelpers';
 import FriendAvatars from '../components/ui/FriendAvatars';
 import ParticipantsModal from '../components/ui/ParticipantsModal';
 import LocationMap from '../components/ui/LocationMap';
@@ -45,7 +45,7 @@ export default function EventDetail() {
   if (loading || !event) {
     return (
       <AppShell title="Event">
-        <p className="text-center text-gray-400 py-12">Lade Event…</p>
+        <p className="text-center text-ink-2 font-bold py-12">Lade Event…</p>
       </AppShell>
     );
   }
@@ -60,20 +60,20 @@ export default function EventDetail() {
     : (isRegistered ? 'Abmelden' : 'Jetzt anmelden');
 
   return (
-    <AppShell>
+    <AppShell noHeader>
       <div className="pb-6">
-        <div className={`px-4 pt-10 pb-6 text-white ${event.source === 'university' ? 'bg-gradient-to-r from-purple-700 to-blue-600' : 'bg-gradient-to-r from-orange-500 to-red-500'}`}>
-          <Link to="/" className="text-white/70 text-sm hover:text-white">← Zurück</Link>
+        <div className={`app-header px-4 pt-10 pb-6 text-white ${isUniversity ? 'accent-violet' : 'accent-coral'}`}>
+          <Link to="/" className="font-display text-sm font-bold text-white/80 hover:text-white">← Zurück</Link>
           <div className="flex items-center gap-3 mt-3">
-            <span className="text-4xl">{sportEmoji(event.sport)}</span>
+            <span className="badge-pop text-2xl" style={{ background: sportBg(event.sport) }}>{sportEmoji(event.sport)}</span>
             <div>
-              <h2 className="text-xl font-bold leading-tight">{event.title}</h2>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-xs bg-white/20 rounded-full px-2 py-0.5">
+              <h2 className="font-display text-2xl font-extrabold leading-tight">{event.title}</h2>
+              <div className="flex items-center gap-2 mt-1.5">
+                <span className="pill bg-white/20 text-white border-white/40">
                   {event.source === 'university' ? 'Hochschulsport' : event.source === 'external' ? 'Lokales Event' : 'Community'}
                 </span>
                 {event.isPrivate && (
-                  <span className="text-xs bg-white/20 rounded-full px-2 py-0.5">🔒 Privat</span>
+                  <span className="pill bg-white/20 text-white border-white/40">🔒 Privat</span>
                 )}
               </div>
             </div>
@@ -82,26 +82,26 @@ export default function EventDetail() {
 
         <div className="px-4 space-y-4 mt-4">
           {event.description && (
-            <p className="text-gray-600 text-sm">{event.description}</p>
+            <p className="text-ink-2 font-semibold text-sm leading-relaxed">{event.description}</p>
           )}
 
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 space-y-2">
-            <div className="flex gap-6 text-sm text-gray-600">
-              <span>📅 {formatDate(event.date)}</span>
-              <span>🕐 {formatTime(event.date)} Uhr</span>
+          <div className="card-pop p-4 space-y-2.5">
+            <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-sm font-bold text-ink">
+              <span className="flex items-center gap-1.5">📅 {formatDate(event.date)}</span>
+              <span className="flex items-center gap-1.5">🕐 {formatTime(event.date)} Uhr</span>
             </div>
-            <p className="text-sm text-gray-600">📍 {event.location}</p>
+            <p className="text-sm font-bold text-ink flex items-center gap-1.5">📍 {event.location}</p>
             <div>
               <button
                 onClick={() => setModalOpen(true)}
-                className="text-sm text-gray-600 hover:text-purple-600 font-medium"
+                className="font-display text-sm font-bold text-ink hover:text-violet"
               >
                 👥 {event.participationCount ?? 0}
                 {event.maxCapacity ? `/${event.maxCapacity}` : ''} Teilnehmer
               </button>
               {event.maxCapacity && fillPercent !== null && (
-                <div className="w-full bg-gray-100 rounded-full h-1.5 mt-1">
-                  <div className="bg-blue-500 h-1.5 rounded-full" style={{ width: `${fillPercent}%` }} />
+                <div className="progress-pop mt-2">
+                  <i style={{ width: `${fillPercent}%` }} />
                 </div>
               )}
             </div>
@@ -113,35 +113,39 @@ export default function EventDetail() {
             href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(event.location)}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="block w-full text-center font-semibold rounded-2xl py-4 text-sm border-2 border-blue-300 text-blue-700 bg-white hover:bg-blue-50 transition"
+            className="btn-pop btn-white"
           >
             📍 Route mit Google Maps
           </a>
 
           {event.friendParticipants && event.friendParticipants.length > 0 && (
-            <div className="bg-green-50 rounded-2xl p-4 border border-green-100">
+            <div className="card-pop p-4" style={{ background: '#EAFBF3' }}>
               <FriendAvatars friends={event.friendParticipants} />
             </div>
           )}
 
-          <button
-            onClick={handleJoin}
-            disabled={actionLoading}
-            className={`w-full font-semibold rounded-2xl py-4 text-sm transition disabled:opacity-50 ${
-              isRegistered
-                ? 'border-2 border-red-400 text-red-500 bg-white hover:bg-red-50'
-                : 'bg-gradient-to-r from-purple-600 to-blue-500 text-white hover:opacity-90'
-            }`}
-          >
-            {actionLoading ? '…' : toggleLabel}
-          </button>
+          {isRegistered ? (
+            <>
+              <div className="btn-joined w-full">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" className="w-[18px] h-[18px]"><path d="M5 13l4 4L19 7" /></svg>
+                Du bist dabei!
+              </div>
+              <button onClick={handleJoin} disabled={actionLoading} className="btn-pop btn-coral">
+                {actionLoading ? '…' : toggleLabel}
+              </button>
+            </>
+          ) : (
+            <button onClick={handleJoin} disabled={actionLoading} className="btn-pop btn-violet">
+              {actionLoading ? '…' : toggleLabel}
+            </button>
+          )}
 
           {isUniversity && event.externalUrl && (
             <a
               href={event.externalUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="block w-full text-center font-semibold rounded-2xl py-4 text-sm border-2 border-purple-300 text-purple-700 bg-white hover:bg-purple-50 transition"
+              className="btn-pop btn-white"
             >
               Beim Hochschulsport anmelden →
             </a>

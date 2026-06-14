@@ -1,16 +1,331 @@
 @import "tailwindcss";
 
+/* ===== DESIGN TOKENS (Sticker Pop) ===== */
+@theme {
+  --color-paper: #fffdf7;
+  --color-card: #ffffff;
+  --color-ink: #1a1730;
+  --color-ink-2: #6b6580;
+  --color-violet: #7b5cff;
+  --color-violet-d: #5b3de0;
+  --color-yellow: #ffd23f;
+  --color-coral: #ff5c7a;
+  --color-teal: #25d0b8;
+  --color-sky: #4fc3f7;
+  --color-mint: #7be3a3;
+  --color-peach: #ffb07a;
+
+  --font-display: "Baloo 2", system-ui, sans-serif;
+  --font-body: "Nunito", system-ui, sans-serif;
+
+  --radius-pop: 20px;
+  --radius-pop-lg: 26px;
+
+  --shadow-pop: 4px 4px 0 #1a1730;
+  --shadow-pop-lg: 5px 5px 0 #1a1730;
+  --shadow-pop-sm: 3px 3px 0 #1a1730;
+}
+
 * {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-body);
+  color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
-  background-color: #f5f5f5;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(123, 92, 255, 0.1), transparent 30%),
+    radial-gradient(circle at 88% 12%, rgba(255, 92, 122, 0.1), transparent 28%),
+    radial-gradient(circle at 70% 90%, rgba(37, 208, 184, 0.1), transparent 30%),
+    #f1eeff;
 }
 
 #root {
   min-height: 100svh;
+}
+
+/* ===== SIGNATUR-KOMPONENTEN ===== */
+@layer components {
+  /* Cards */
+  .card-pop {
+    background: var(--color-card);
+    border: 2.5px solid var(--color-ink);
+    border-radius: var(--radius-pop-lg);
+    box-shadow: var(--shadow-pop-lg);
+  }
+
+  /* Headlines */
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  /* App-Header Sticker-Block */
+  .app-header {
+    position: relative;
+    color: #fff;
+    background: var(--color-violet);
+    border-bottom: 2.5px solid var(--color-ink);
+  }
+  .app-header.accent-teal {
+    background: var(--color-teal);
+  }
+  .app-header.accent-coral {
+    background: var(--color-coral);
+  }
+  .app-header.accent-sky {
+    background: var(--color-sky);
+  }
+  .app-header::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.18;
+    pointer-events: none;
+    background-image: radial-gradient(#fff 1.4px, transparent 1.4px);
+    background-size: 16px 16px;
+    -webkit-mask: linear-gradient(180deg, #000, transparent);
+    mask: linear-gradient(180deg, #000, transparent);
+  }
+  .app-header > * {
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Logo-Mark */
+  .logo-mark {
+    width: 40px;
+    height: 40px;
+    border-radius: 13px;
+    background: var(--color-yellow);
+    border: 2.5px solid var(--color-ink);
+    display: grid;
+    place-items: center;
+    box-shadow: var(--shadow-pop-sm);
+    transform: rotate(-6deg);
+    flex: none;
+  }
+
+  /* Buttons (pressable sticker) */
+  .btn-pop {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 15.5px;
+    border: 2.5px solid var(--color-ink);
+    border-radius: var(--radius-pop);
+    padding: 13px;
+    width: 100%;
+    box-shadow: var(--shadow-pop);
+    color: var(--color-ink);
+    background: #fff;
+    transition: transform 0.05s ease;
+  }
+  .btn-pop:active {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 var(--color-ink);
+  }
+  .btn-pop:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .btn-violet {
+    background: var(--color-violet);
+    color: #fff;
+  }
+  .btn-yellow {
+    background: var(--color-yellow);
+    color: var(--color-ink);
+  }
+  .btn-white {
+    background: #fff;
+    color: var(--color-ink);
+  }
+  .btn-coral {
+    background: #fff;
+    color: var(--color-coral);
+    border-color: var(--color-coral);
+    box-shadow: 4px 4px 0 var(--color-coral);
+  }
+  .btn-coral:active {
+    box-shadow: 2px 2px 0 var(--color-coral);
+  }
+  .btn-joined {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    background: var(--color-mint);
+    color: var(--color-ink);
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 14.5px;
+    padding: 13px;
+    border: 2.5px solid var(--color-ink);
+    border-radius: var(--radius-pop);
+    box-shadow: var(--shadow-pop);
+  }
+
+  /* Pills & Chips */
+  .pill {
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 12px;
+    border: 2px solid var(--color-ink);
+    border-radius: 999px;
+    box-shadow: var(--shadow-pop-sm);
+    background: #fff;
+  }
+  .chip {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--color-card);
+    border: 2.5px solid var(--color-ink);
+    border-radius: 999px;
+    padding: 7px 15px 7px 7px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 13.5px;
+    box-shadow: var(--shadow-pop-sm);
+    cursor: pointer;
+    color: var(--color-ink);
+  }
+  .chip:nth-child(odd) {
+    transform: rotate(-2deg);
+  }
+  .chip:nth-child(even) {
+    transform: rotate(1.5deg);
+  }
+  .chip.on {
+    background: var(--color-ink);
+    color: #fff;
+  }
+  .chip-ci {
+    width: 28px;
+    height: 28px;
+    border-radius: 9px;
+    border: 2px solid var(--color-ink);
+    display: grid;
+    place-items: center;
+    font-size: 15px;
+    flex: none;
+  }
+  .chip.on .chip-ci {
+    border-color: #fff;
+  }
+
+  /* Segmented control */
+  .seg-btn {
+    flex: 1;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--color-ink);
+    background: var(--color-card);
+    border: 2.5px solid var(--color-ink);
+    border-radius: 999px;
+    padding: 10px 4px;
+    box-shadow: var(--shadow-pop-sm);
+    cursor: pointer;
+  }
+  .seg-btn.on {
+    background: var(--color-violet);
+    color: #fff;
+  }
+
+  /* Sport-Badge (gekippt) */
+  .badge-pop {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    border: 2.5px solid var(--color-ink);
+    display: grid;
+    place-items: center;
+    font-size: 25px;
+    flex: none;
+    box-shadow: var(--shadow-pop-sm);
+    transform: rotate(-5deg);
+  }
+
+  /* Form fields */
+  .field-pop {
+    background: var(--color-card);
+    border: 2.5px solid var(--color-ink);
+    border-radius: var(--radius-pop-lg);
+    padding: 17px;
+    box-shadow: var(--shadow-pop);
+  }
+  .input-pop {
+    width: 100%;
+    border: 2.5px solid var(--color-ink);
+    background: var(--color-paper);
+    border-radius: var(--radius-pop);
+    padding: 13px 15px;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 14.5px;
+    color: var(--color-ink);
+    outline: none;
+  }
+  .input-pop::placeholder {
+    color: var(--color-ink-2);
+  }
+  .input-pop:focus {
+    box-shadow: var(--shadow-pop-sm);
+  }
+
+  /* Chunky striped progress bar */
+  .progress-pop {
+    height: 14px;
+    border: 2.5px solid var(--color-ink);
+    border-radius: 999px;
+    background: #fff;
+    overflow: hidden;
+  }
+  .progress-pop > i {
+    display: block;
+    height: 100%;
+    background: repeating-linear-gradient(45deg, var(--color-teal) 0 8px, #1ec0a9 8px 16px);
+  }
+  .progress-pop.violet > i {
+    background: repeating-linear-gradient(45deg, var(--color-violet) 0 9px, #6244e6 9px 18px);
+  }
+
+  /* Stat cards */
+  .stat-pop {
+    border: 2.5px solid var(--color-ink);
+    border-radius: var(--radius-pop-lg);
+    padding: 17px;
+    box-shadow: var(--shadow-pop-lg);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Bottom Tab Bar */
+  .tabs-pop {
+    background: var(--color-card);
+    border-top: 2.5px solid var(--color-ink);
+  }
+  .fab-pop {
+    width: 56px;
+    height: 56px;
+    border-radius: 19px;
+    background: var(--color-coral);
+    border: 2.5px solid var(--color-ink);
+    display: grid;
+    place-items: center;
+    box-shadow: var(--shadow-pop);
+    margin-top: -24px;
+    flex: none;
+    transform: rotate(-6deg);
+    color: #fff;
+  }
 }

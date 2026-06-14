@@ -27,51 +27,52 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-700 to-blue-600">
+    <div className="min-h-screen flex flex-col">
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-12">
         <div className="w-full max-w-sm">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white">SportMate</h1>
-            <p className="text-purple-200 text-sm mt-1">Dein Hochschulsport-Begleiter</p>
+          <div className="flex flex-col items-center text-center mb-7">
+            <div className="logo-mark w-16 h-16 rounded-[20px] mb-3">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8 text-ink">
+                <path d="M13 3L4 14h6l-1 7 9-11h-6z" />
+              </svg>
+            </div>
+            <h1 className="font-display text-4xl font-extrabold text-ink">SportMate</h1>
+            <p className="font-bold text-ink-2 text-sm mt-1">Dein Hochschulsport-Begleiter</p>
           </div>
 
-          <div className="bg-white rounded-2xl p-6 shadow-xl">
-            <h2 className="text-xl font-semibold text-gray-800 mb-6">Anmelden</h2>
+          <div className="card-pop p-6">
+            <h2 className="font-display text-2xl font-extrabold text-ink mb-5">Anmelden</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">E-Mail</label>
+                <label className="block font-display text-xs font-extrabold text-ink mb-1.5">E-Mail</label>
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="input-pop"
                   placeholder="max@hs-heilbronn.de"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Passwort</label>
+                <label className="block font-display text-xs font-extrabold text-ink mb-1.5">Passwort</label>
                 <input
                   type="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="input-pop"
                   placeholder="••••••••"
                 />
               </div>
-              {error && <p className="text-red-500 text-sm">{error}</p>}
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-gradient-to-r from-purple-600 to-blue-500 text-white font-semibold rounded-xl py-3 text-sm hover:opacity-90 transition disabled:opacity-50"
-              >
+              {error && <p className="text-coral font-bold text-sm">{error}</p>}
+              <button type="submit" disabled={loading} className="btn-pop btn-violet">
                 {loading ? 'Wird angemeldet…' : 'Anmelden'}
               </button>
             </form>
-            <p className="text-center text-sm text-gray-500 mt-4">
+            <p className="text-center text-sm font-bold text-ink-2 mt-4">
               Noch kein Konto?{' '}
-              <Link to="/register" className="text-purple-600 font-medium hover:underline">
+              <Link to="/register" className="text-violet font-extrabold hover:underline">
                 Registrieren
               </Link>
             </p>

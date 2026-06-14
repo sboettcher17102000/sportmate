@@ -19,7 +19,7 @@ export default function FriendAvatars({ friends, max = 3 }: FriendAvatarsProps) 
           <span
             key={f.id}
             title={f.name}
-            className="w-7 h-7 rounded-full bg-purple-600 text-white text-[10px] font-semibold flex items-center justify-center ring-2 ring-white"
+            className="w-7 h-7 rounded-full bg-violet text-white text-[10px] font-extrabold font-display flex items-center justify-center border-2 border-ink"
           >
             {initials(f.name)}
           </span>
@@ -27,13 +27,13 @@ export default function FriendAvatars({ friends, max = 3 }: FriendAvatarsProps) 
         {overflow > 0 && (
           <span
             title={`${overflow} weitere`}
-            className="w-7 h-7 rounded-full bg-gray-300 text-gray-700 text-[10px] font-semibold flex items-center justify-center ring-2 ring-white"
+            className="w-7 h-7 rounded-full bg-yellow text-ink text-[10px] font-extrabold font-display flex items-center justify-center border-2 border-ink"
           >
             …
           </span>
         )}
       </div>
-      <span className="ml-2 text-xs text-green-700">
+      <span className="ml-2 font-display text-xs font-bold text-violet-d">
         {friends.length === 1 ? 'nimmt teil' : 'nehmen teil'}
       </span>
     </div>
