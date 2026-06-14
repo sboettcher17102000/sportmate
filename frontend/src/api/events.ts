@@ -20,6 +20,10 @@ export function getMyEvents() {
   return api.get<Event[]>('/events/mine');
 }
 
+export function getUserEvents(id: number) {
+  return api.get<Event[]>(`/events/user/${id}`);
+}
+
 export function getEvent(id: number) {
   return api.get<Event>(`/events/${id}`);
 }

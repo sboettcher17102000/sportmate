@@ -132,6 +132,29 @@ router.get('/mine', authenticate, async (req: AuthRequest, res: Response): Promi
   res.json(participations.map((p) => serializeEvent(p.event, req.userId, friendIds)));
 });
 
+router.get('/user/:id', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
+  const userId = parseInt(req.params.id as string);
+  const viewerFriendIds = await getFriendIds(req.userId!);
+
+  const participations = await prisma.participation.findMany({
+    where: { userId, status: { not: 'cancelled' } },
+    include: {
+      event: {
+        include: { creator: true, participations: { include: { user: true } } },
+      },
+    },
+    orderBy: { event: { date: 'asc' } },
+  });
+
+  // Private Events nur zeigen, wenn der Betrachter sie sehen darf (wie in GET /)
+  const visible = participations.filter((p) => {
+    const e = p.event;
+    return !e.isPrivate || e.creatorId === req.userId || viewerFriendIds.includes(e.creatorId);
+  });
+
+  res.json(visible.map((p) => serializeEvent(p.event, req.userId, viewerFriendIds)));
+});
+
 router.get('/:id', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
   const id = parseInt(req.params.id as string);
   const event = await prisma.event.findUnique({

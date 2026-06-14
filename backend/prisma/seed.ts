@@ -214,10 +214,12 @@ async function main() {
   // Zeitstempeln, damit der Feed direkt befüllt ist. Erst leeren -> idempotent.
   const HOUR = 60 * 60 * 1000;
   await prisma.activity.deleteMany({});
+  // join-Einträge zeigen auf BEVORSTEHENDE Events, in denen der Freund registriert ist,
+  // damit das "beigetreten" auch unter "Nächste Events" des Profils sichtbar ist.
   const activityData = [
-    { userId: anna.id, eventId: createdEvents[0].id, type: 'join', createdAt: new Date(Date.now() - 2 * HOUR) },
+    { userId: anna.id, eventId: createdEvents[2].id, type: 'join', createdAt: new Date(Date.now() - 2 * HOUR) },
     { userId: maxW.id, eventId: createdEvents[6].id, type: 'leave', createdAt: new Date(Date.now() - 5 * HOUR) },
-    { userId: lena.id, eventId: createdEvents[1].id, type: 'join', createdAt: new Date(Date.now() - 26 * HOUR) },
+    { userId: lena.id, eventId: createdEvents[5].id, type: 'join', createdAt: new Date(Date.now() - 26 * HOUR) },
     { userId: anna.id, eventId: createdEvents[6].id, type: 'join', createdAt: new Date(Date.now() - 30 * HOUR) },
   ];
   for (const a of activityData) {

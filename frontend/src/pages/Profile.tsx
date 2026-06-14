@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import AppShell from '../components/layout/AppShell';
 import { useAuth } from '../context/AuthContext';
-import { getMyEvents } from '../api/events';
+import { getMyEvents, getUserEvents } from '../api/events';
 import { getUserProfile, updateMyProfile } from '../api/friendships';
 import type { Event, User } from '../types';
 import { formatDate, sportEmoji, sportBg } from '../components/ui/eventHelpers';
@@ -43,9 +43,10 @@ export default function Profile() {
         if (!isOwnProfile && id) {
           const u = await getUserProfile(parseInt(id));
           setProfileUser(u);
+          setEvents(await getUserEvents(parseInt(id)));
+        } else {
+          setEvents(await getMyEvents());
         }
-        const myEvents = await getMyEvents();
-        setEvents(myEvents);
       } finally {
         setLoading(false);
       }
