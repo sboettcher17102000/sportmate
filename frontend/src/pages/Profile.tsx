@@ -97,7 +97,11 @@ export default function Profile() {
     }
   }
 
-  const upcoming = events.filter((e) => new Date(e.date) >= new Date());
+  const now = new Date();
+  const upcoming = events.filter((e) => new Date(e.date) >= now);
+  const past = events
+    .filter((e) => new Date(e.date) < now)
+    .sort((a, b) => +new Date(b.date) - +new Date(a.date)); // neueste zuerst
 
   if (loading) {
     return (
@@ -227,6 +231,23 @@ export default function Profile() {
             </div>
           )}
         </div>
+
+        {past.length > 0 && (
+          <div className="card-pop p-4">
+            <div className="flex items-center gap-2 font-display font-extrabold text-base text-ink mb-4">🕓 Vergangene Events</div>
+            <div className="space-y-3.5">
+              {past.slice(0, 3).map((event) => (
+                <div key={event.id} className="flex items-center gap-3 opacity-80">
+                  <span className="badge-pop w-11 h-11 text-xl" style={{ background: sportBg(event.sport) }}>{sportEmoji(event.sport)}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-display text-[15px] font-extrabold text-ink leading-tight truncate">{event.title}</p>
+                    <p className="text-xs font-bold text-ink-2">{formatDate(event.date)} · {event.location}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Edit-Modal */}

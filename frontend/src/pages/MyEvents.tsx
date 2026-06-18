@@ -26,8 +26,63 @@ export default function MyEvents() {
     load();
   }
 
-  const upcoming = events.filter((e) => new Date(e.date) >= new Date());
+  const now = new Date();
+  const upcoming = events.filter((e) => new Date(e.date) >= now);
+  const past = events
+    .filter((e) => new Date(e.date) < now)
+    .sort((a, b) => +new Date(b.date) - +new Date(a.date)); // neueste zuerst
   const attendanceRate = events.length > 0 ? 100 : 0;
+
+  function renderEvent(event: Event, { past }: { past: boolean }) {
+    return (
+      <div key={event.id} className="card-pop p-4">
+        <div className="flex items-center gap-3">
+          <span className="badge-pop" style={{ background: sportBg(event.sport) }}>{sportEmoji(event.sport)}</span>
+          <div className="flex-1 min-w-0">
+            <p className="font-display text-lg font-extrabold text-ink leading-tight">{event.title}</p>
+            <p className="font-display text-xs font-bold text-ink-2">{event.sport}</p>
+          </div>
+          {past ? (
+            <span className="pill bg-paper text-ink-2 flex items-center gap-1">✓ Vorbei</span>
+          ) : (
+            <span className="pill bg-mint flex items-center gap-1">🔔 An</span>
+          )}
+        </div>
+        <div className="mt-3.5 flex flex-wrap gap-x-4 gap-y-1.5 text-[13px] font-bold text-ink">
+          <span className="flex items-center gap-1.5">📅 {formatDate(event.date)}</span>
+          <span className="flex items-center gap-1.5">🕐 {formatTime(event.date)}</span>
+        </div>
+        <p className="text-[13px] font-bold text-ink mt-1.5 flex items-center gap-1.5">📍 {event.location}</p>
+
+        <div className="mt-3 flex items-center justify-between">
+          <FriendAvatars friends={event.friendParticipants ?? []} />
+          <button
+            onClick={() => setModalEventId(event.id)}
+            className="font-display text-[13px] font-bold text-ink hover:text-violet"
+          >
+            👥 {event.participationCount ?? 0} Teilnehmer
+          </button>
+        </div>
+
+        <div className="mt-3.5 flex gap-3">
+          <Link
+            to={`/events/${event.id}`}
+            className="btn-pop btn-violet flex-1"
+          >
+            Details
+          </Link>
+          {!past && (
+            <button
+              onClick={() => handleLeave(event.id)}
+              className="btn-pop btn-coral flex-none w-auto px-5"
+            >
+              Abmelden
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <AppShell title="Meine Events" subtitle="Deine Anmeldungen auf einen Blick." accent="teal">
@@ -49,56 +104,30 @@ export default function MyEvents() {
 
         {loading ? (
           <p className="text-sm font-bold text-ink-2 text-center py-8">Lade Events…</p>
-        ) : upcoming.length === 0 ? (
+        ) : events.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-ink-2 font-bold text-sm mb-3">Du bist noch bei keinem Event angemeldet.</p>
             <Link to="/" className="text-violet font-display font-extrabold text-sm">Events entdecken →</Link>
           </div>
         ) : (
-          <div className="space-y-3.5">
-            {upcoming.map((event) => (
-              <div key={event.id} className="card-pop p-4">
-                <div className="flex items-center gap-3">
-                  <span className="badge-pop" style={{ background: sportBg(event.sport) }}>{sportEmoji(event.sport)}</span>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-display text-lg font-extrabold text-ink leading-tight">{event.title}</p>
-                    <p className="font-display text-xs font-bold text-ink-2">{event.sport}</p>
-                  </div>
-                  <span className="pill bg-mint flex items-center gap-1">🔔 An</span>
-                </div>
-                <div className="mt-3.5 flex flex-wrap gap-x-4 gap-y-1.5 text-[13px] font-bold text-ink">
-                  <span className="flex items-center gap-1.5">📅 {formatDate(event.date)}</span>
-                  <span className="flex items-center gap-1.5">🕐 {formatTime(event.date)}</span>
-                </div>
-                <p className="text-[13px] font-bold text-ink mt-1.5 flex items-center gap-1.5">📍 {event.location}</p>
-
-                <div className="mt-3 flex items-center justify-between">
-                  <FriendAvatars friends={event.friendParticipants ?? []} />
-                  <button
-                    onClick={() => setModalEventId(event.id)}
-                    className="font-display text-[13px] font-bold text-ink hover:text-violet"
-                  >
-                    👥 {event.participationCount ?? 0} Teilnehmer
-                  </button>
-                </div>
-
-                <div className="mt-3.5 flex gap-3">
-                  <Link
-                    to={`/events/${event.id}`}
-                    className="btn-pop btn-violet flex-1"
-                  >
-                    Details
-                  </Link>
-                  <button
-                    onClick={() => handleLeave(event.id)}
-                    className="btn-pop btn-coral flex-none w-auto px-5"
-                  >
-                    Abmelden
-                  </button>
-                </div>
+          <>
+            {upcoming.length === 0 ? (
+              <p className="text-sm font-bold text-ink-2 px-1 py-2">Keine anstehenden Events.</p>
+            ) : (
+              <div className="space-y-3.5">
+                {upcoming.map((event) => renderEvent(event, { past: false }))}
               </div>
-            ))}
-          </div>
+            )}
+
+            {past.length > 0 && (
+              <>
+                <h3 className="font-display text-xl font-extrabold text-ink px-1 pt-2">Vergangene Events</h3>
+                <div className="space-y-3.5">
+                  {past.map((event) => renderEvent(event, { past: true }))}
+                </div>
+              </>
+            )}
+          </>
         )}
       </div>
 
