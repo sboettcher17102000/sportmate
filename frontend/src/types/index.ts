@@ -39,6 +39,8 @@ export interface Event {
   sport: SportCategory;
   date: string;
   location: string;
+  latitude?: number | null;
+  longitude?: number | null;
   description?: string;
   source: EventSource;
   isPrivate?: boolean;

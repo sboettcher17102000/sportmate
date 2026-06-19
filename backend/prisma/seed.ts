@@ -85,6 +85,8 @@ async function main() {
       sport: 'Volleyball',
       date: new Date('2026-05-08T18:00:00'),
       location: 'Sporthalle Campus Sontheim',
+      latitude: 49.1232,
+      longitude: 9.2118,
       description: 'Entspanntes Mixed-Volleyball für alle Levels',
       source: 'university',
       maxCapacity: 24,
@@ -95,6 +97,8 @@ async function main() {
       sport: 'Yoga',
       date: new Date('2026-05-06T17:30:00'),
       location: 'Gymnastikhalle Bildungscampus',
+      latitude: 49.1505,
+      longitude: 9.2188,
       description: 'Einsteigerkurs – keine Vorkenntnisse nötig',
       source: 'university',
       maxCapacity: 15,
@@ -105,6 +109,8 @@ async function main() {
       sport: 'Laufen',
       date: new Date('2026-06-15T09:00:00'),
       location: 'Heilbronn Innenstadt',
+      latitude: 49.1427,
+      longitude: 9.2109,
       description: 'Der traditionelle Trollinger Marathon durch die Weinberge',
       source: 'external',
       maxCapacity: 500,
@@ -115,6 +121,8 @@ async function main() {
       sport: 'Basketball',
       date: new Date('2026-06-20T16:00:00'),
       location: 'Außenplatz Campus Sontheim',
+      latitude: 49.1240,
+      longitude: 9.2135,
       description: 'Kleinfeld-Turnier, Teams werden vor Ort eingeteilt',
       source: 'user',
       maxCapacity: 12,
@@ -125,6 +133,8 @@ async function main() {
       sport: 'Fußball',
       date: new Date('2026-06-18T18:00:00'),
       location: 'Sportplatz Sontheim',
+      latitude: 49.1198,
+      longitude: 9.2152,
       description: 'Freundschaftliches Kicken nach der Uni',
       source: 'user',
       maxCapacity: 22,
@@ -135,6 +145,8 @@ async function main() {
       sport: 'Klettern',
       date: new Date('2026-06-25T17:00:00'),
       location: 'Kletterhalle Heilbronn',
+      latitude: 49.1370,
+      longitude: 9.1935,
       description: 'Toprope-Einführung für Neulinge',
       source: 'university',
       maxCapacity: 8,
@@ -145,6 +157,8 @@ async function main() {
       sport: 'Schwimmen',
       date: new Date('2026-06-17T07:00:00'),
       location: 'Stadtbad Heilbronn',
+      latitude: 49.1489,
+      longitude: 9.2042,
       description: 'Gemeinsames Morgenschwimmen',
       source: 'university',
       maxCapacity: 20,
@@ -156,6 +170,14 @@ async function main() {
   for (const e of eventsData) {
     const existing = await prisma.event.findFirst({ where: { title: e.title } });
     if (existing) {
+      // Koordinaten an bestehenden Events nachtragen (z. B. nach Schema-Update),
+      // ohne ID/Teilnahmen anzufassen -> Seed bleibt idempotent.
+      if (existing.latitude == null || existing.longitude == null) {
+        await prisma.event.update({
+          where: { id: existing.id },
+          data: { latitude: e.latitude, longitude: e.longitude },
+        });
+      }
       createdEvents.push({ id: existing.id, creatorId: existing.creatorId });
       continue;
     }

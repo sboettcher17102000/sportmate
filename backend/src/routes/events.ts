@@ -1,6 +1,7 @@
 import { Router, Response } from 'express';
 import prisma from '../db';
 import { authenticate, type AuthRequest } from '../middleware/auth';
+import { geocodeLocation } from '../lib/geocode';
 
 const router = Router();
 
@@ -56,6 +57,8 @@ function serializeEvent(event: any, currentUserId?: number, friendIds?: number[]
     sport: event.sport,
     date: event.date,
     location: event.location,
+    latitude: event.latitude ?? null,
+    longitude: event.longitude ?? null,
     description: event.description,
     source: event.source,
     isPrivate: event.isPrivate ?? false,
@@ -181,9 +184,14 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response): Promise<
     res.status(400).json({ message: 'Titel, Sportart, Datum und Ort sind erforderlich' });
     return;
   }
+  // Ort zu Koordinaten auflösen (best-effort) – nötig für die Karten-Pins.
+  // Schlägt das Geocoding fehl, wird das Event ohne Koordinaten gespeichert.
+  const coords = await geocodeLocation(location);
   const event = await prisma.event.create({
     data: {
       title, sport, date: new Date(date), location,
+      latitude: coords?.lat ?? null,
+      longitude: coords?.lng ?? null,
       description, source: source ?? 'user',
       isPrivate: isPrivate ?? false,
       maxCapacity: maxCapacity ?? null,

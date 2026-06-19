@@ -15,6 +15,9 @@ import { PrismaClient } from '../generated/prisma/client';
 import { PrismaLibSql } from '@prisma/adapter-libsql';
 import bcrypt from 'bcryptjs';
 import path from 'path';
+import { geocodeLocation } from '../lib/geocode';
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const PORTAL_URL = 'https://portal.studi.hn/de/courses/sport-kurse/offers';
 
@@ -125,6 +128,10 @@ export async function importHochschulsport(prisma: PrismaClient): Promise<number
   const courses = await fetchCourses();
 
   for (const c of courses) {
+    // Ort best-effort zu Koordinaten auflösen (für die Karten-Pins). Nominatim
+    // erlaubt max. 1 Anfrage/Sekunde -> kurze Pause zwischen den Kursen.
+    const coords = await geocodeLocation(c.location);
+    await sleep(1100);
     await prisma.event.upsert({
       where: { externalId: c.externalId },
       update: {
@@ -132,6 +139,8 @@ export async function importHochschulsport(prisma: PrismaClient): Promise<number
         sport: c.sport,
         date: c.date,
         location: c.location,
+        latitude: coords?.lat ?? null,
+        longitude: coords?.lng ?? null,
         description: c.description ?? null,
         externalUrl: c.externalUrl,
       },
@@ -140,6 +149,8 @@ export async function importHochschulsport(prisma: PrismaClient): Promise<number
         sport: c.sport,
         date: c.date,
         location: c.location,
+        latitude: coords?.lat ?? null,
+        longitude: coords?.lng ?? null,
         description: c.description ?? null,
         source: 'university',
         externalUrl: c.externalUrl,

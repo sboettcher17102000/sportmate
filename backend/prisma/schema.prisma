@@ -32,6 +32,8 @@ model Event {
   sport       String
   date        DateTime
   location    String
+  latitude    Float?
+  longitude   Float?
   description String?
   source      String   @default("user")
   isPrivate   Boolean  @default(false)
