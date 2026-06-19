@@ -14,6 +14,15 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
   const res = await fetch(`${BASE_URL}${path}`, { ...options, headers, cache: 'no-store' });
   if (!res.ok) {
+    // Abgelaufene/ungültige Sitzung: war ein Token gesetzt, ist es jetzt
+    // wertlos -> verwerfen und zum Login leiten (außer wir sind schon dort).
+    if (res.status === 401 && token) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      if (!['/login', '/register'].includes(window.location.pathname)) {
+        window.location.href = '/login';
+      }
+    }
     const err = await res.json().catch(() => ({ message: res.statusText }));
     throw new Error(err.message ?? res.statusText);
   }
