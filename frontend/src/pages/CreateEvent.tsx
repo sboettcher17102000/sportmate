@@ -18,6 +18,33 @@ const SPORT_OPTIONS: { label: string; emoji: string; value: SportCategory }[] = 
   { label: 'Andere', emoji: '🎯', value: 'Andere' },
 ];
 
+type RecurrenceValue = '' | 'weekly' | 'biweekly' | 'monthly';
+
+const RECURRENCE_OPTIONS: { label: string; value: RecurrenceValue }[] = [
+  { label: 'Einmalig', value: '' },
+  { label: '🔁 Wöchentlich', value: 'weekly' },
+  { label: '🔁 Alle 2 Wochen', value: 'biweekly' },
+  { label: '🔁 Monatlich', value: 'monthly' },
+];
+
+function weekdayLabel(date: string): string {
+  if (!date) return '';
+  return new Date(`${date}T00:00:00`).toLocaleDateString('de-DE', { weekday: 'long' });
+}
+
+function recurrenceText(recurrence: RecurrenceValue, date: string): string {
+  switch (recurrence) {
+    case 'weekly':
+      return `wöchentlich (jeden ${weekdayLabel(date)})`;
+    case 'biweekly':
+      return `alle 2 Wochen`;
+    case 'monthly':
+      return `monatlich`;
+    default:
+      return '';
+  }
+}
+
 export default function CreateEvent() {
   const navigate = useNavigate();
   const [title, setTitle] = useState('');
@@ -28,6 +55,8 @@ export default function CreateEvent() {
   const [description, setDescription] = useState('');
   const [maxCapacity, setMaxCapacity] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
+  const [recurrence, setRecurrence] = useState<RecurrenceValue>('');
+  const [recurrenceEnd, setRecurrenceEnd] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -47,6 +76,10 @@ export default function CreateEvent() {
         source: 'user',
         isPrivate,
         maxCapacity: maxCapacity ? parseInt(maxCapacity) : undefined,
+        recurrence: recurrence || undefined,
+        // Enddatum inklusiv: bis zum Ende des gewählten Tages
+        recurrenceEndDate:
+          recurrence && recurrenceEnd ? `${recurrenceEnd}T23:59:59` : undefined,
       });
       navigate(`/events/${event.id}`);
     } catch (err) {
@@ -126,6 +159,53 @@ export default function CreateEvent() {
               className="input-pop"
             />
           </div>
+        </div>
+
+        <div className="field-pop">
+          <label className="flex items-center gap-2 font-display text-[15px] font-extrabold text-ink mb-3">
+            🔁 Wiederholung
+          </label>
+          <div className="grid grid-cols-2 gap-2.5">
+            {RECURRENCE_OPTIONS.map((opt) => {
+              const on = recurrence === opt.value;
+              return (
+                <button
+                  key={opt.value || 'once'}
+                  type="button"
+                  onClick={() => setRecurrence(opt.value)}
+                  className={`p-3 rounded-[16px] border-[2.5px] border-ink font-display text-[13px] font-bold shadow-pop-sm transition ${
+                    on ? 'bg-violet text-white' : 'bg-white text-ink'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {recurrence && (
+            <div className="mt-3 space-y-3">
+              {date && (
+                <p className="text-xs font-bold text-ink-2 leading-snug">
+                  Erster Termin: {weekdayLabel(date)},{' '}
+                  {new Date(`${date}T00:00:00`).toLocaleDateString('de-DE')} – wiederholt sich{' '}
+                  {recurrenceText(recurrence, date)}. Im Feed erscheint immer nur der nächste Termin.
+                </p>
+              )}
+              <div>
+                <label className="flex items-center gap-2 font-display text-[13px] font-extrabold text-ink mb-2">
+                  🏁 Enddatum (optional)
+                </label>
+                <input
+                  type="date"
+                  value={recurrenceEnd}
+                  min={date || undefined}
+                  onChange={(e) => setRecurrenceEnd(e.target.value)}
+                  className="input-pop"
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="field-pop">

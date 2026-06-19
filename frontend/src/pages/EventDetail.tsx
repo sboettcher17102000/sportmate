@@ -75,6 +75,9 @@ export default function EventDetail() {
                 {event.isPrivate && (
                   <span className="pill bg-white/20 text-white border-white/40">🔒 Privat</span>
                 )}
+                {event.recurrenceLabel && (
+                  <span className="pill bg-white/20 text-white border-white/40">🔁 {event.recurrenceLabel}</span>
+                )}
               </div>
             </div>
           </div>

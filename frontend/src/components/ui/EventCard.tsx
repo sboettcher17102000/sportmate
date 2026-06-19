@@ -60,6 +60,7 @@ export default function EventCard({ event, onUpdate }: EventCardProps) {
             <p className="font-display text-xs font-bold text-ink-2 mt-0.5">
               {sourceLabel}
               {event.isPrivate && <span className="ml-1.5 text-violet">· 🔒 Privat</span>}
+              {event.recurrenceLabel && <span className="ml-1.5 text-violet">· 🔁 {event.recurrenceLabel}</span>}
             </p>
           </div>
         </div>

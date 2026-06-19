@@ -16,6 +16,8 @@ export type ParticipationStatus = 'registered' | 'invited' | 'cancelled';
 
 export type FriendshipStatus = 'pending' | 'accepted';
 
+export type Recurrence = 'weekly' | 'biweekly' | 'monthly';
+
 export interface User {
   id: number;
   name: string;
@@ -46,6 +48,9 @@ export interface Event {
   isPrivate?: boolean;
   maxCapacity?: number;
   externalUrl?: string | null;
+  recurrence?: Recurrence | null;
+  recurrenceEndDate?: string | null;
+  recurrenceLabel?: string | null;
   creatorId: number;
   creator?: User;
   participationCount?: number;

@@ -40,6 +40,10 @@ model Event {
   maxCapacity Int?
   externalUrl String?
   externalId  String?  @unique
+  // Wiederholung: null = einmaliges Event. Sonst 'weekly' | 'biweekly' | 'monthly'.
+  // `date` ist dann der Anker/erste Termin; Wochentag + Uhrzeit werden daraus abgeleitet.
+  recurrence        String?
+  recurrenceEndDate DateTime?
   createdAt   DateTime @default(now())
 
   creator        User            @relation(fields: [creatorId], references: [id])

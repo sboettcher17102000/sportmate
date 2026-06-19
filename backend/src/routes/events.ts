@@ -2,6 +2,7 @@ import { Router, Response } from 'express';
 import prisma from '../db';
 import { authenticate, type AuthRequest } from '../middleware/auth';
 import { geocodeLocation } from '../lib/geocode';
+import { displayDate, recurrenceLabel, isValidRecurrence } from '../lib/recurrence';
 
 const router = Router();
 
@@ -51,11 +52,19 @@ function serializeEvent(event: any, currentUserId?: number, friendIds?: number[]
     })),
   ];
 
+  // Bei wiederkehrenden Events wird statt des Ankers der nächste Termin
+  // ausgeliefert (bzw. der letzte Termin, wenn die Serie beendet ist). Für
+  // Einzel-Events bleibt es exakt beim gespeicherten Datum.
+  const effectiveDate = displayDate(event);
+
   return {
     id: event.id,
     title: event.title,
     sport: event.sport,
-    date: event.date,
+    date: effectiveDate,
+    recurrence: event.recurrence ?? null,
+    recurrenceEndDate: event.recurrenceEndDate ?? null,
+    recurrenceLabel: recurrenceLabel(event.recurrence ?? null, event.date),
     location: event.location,
     latitude: event.latitude ?? null,
     longitude: event.longitude ?? null,
@@ -114,10 +123,15 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response): Promise<v
       creator: true,
       participations: { include: { user: true } },
     },
-    orderBy: { date: 'asc' },
   });
 
-  res.json(events.map((e) => serializeEvent(e, req.userId, friendIds)));
+  // Nach dem ausgelieferten (ggf. berechneten) Datum sortieren – das echte
+  // Sortierkriterium bei wiederkehrenden Events ist der nächste Termin, nicht
+  // der gespeicherte Anker. Bei Prototyp-Datenmenge unkritisch.
+  const serialized = events
+    .map((e) => serializeEvent(e, req.userId, friendIds))
+    .sort((a, b) => +new Date(a.date) - +new Date(b.date));
+  res.json(serialized);
 });
 
 router.get('/mine', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
@@ -128,11 +142,13 @@ router.get('/mine', authenticate, async (req: AuthRequest, res: Response): Promi
         include: { creator: true, participations: { include: { user: true } } },
       },
     },
-    orderBy: { event: { date: 'asc' } },
   });
 
   const friendIds = await getFriendIds(req.userId!);
-  res.json(participations.map((p) => serializeEvent(p.event, req.userId, friendIds)));
+  const serialized = participations
+    .map((p) => serializeEvent(p.event, req.userId, friendIds))
+    .sort((a, b) => +new Date(a.date) - +new Date(b.date));
+  res.json(serialized);
 });
 
 router.get('/user/:id', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
@@ -146,7 +162,6 @@ router.get('/user/:id', authenticate, async (req: AuthRequest, res: Response): P
         include: { creator: true, participations: { include: { user: true } } },
       },
     },
-    orderBy: { event: { date: 'asc' } },
   });
 
   // Private Events nur zeigen, wenn der Betrachter sie sehen darf (wie in GET /)
@@ -155,7 +170,10 @@ router.get('/user/:id', authenticate, async (req: AuthRequest, res: Response): P
     return !e.isPrivate || e.creatorId === req.userId || viewerFriendIds.includes(e.creatorId);
   });
 
-  res.json(visible.map((p) => serializeEvent(p.event, req.userId, viewerFriendIds)));
+  const serialized = visible
+    .map((p) => serializeEvent(p.event, req.userId, viewerFriendIds))
+    .sort((a, b) => +new Date(a.date) - +new Date(b.date));
+  res.json(serialized);
 });
 
 router.get('/:id', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
@@ -175,26 +193,45 @@ router.get('/:id', authenticate, async (req: AuthRequest, res: Response): Promis
 });
 
 router.post('/', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
-  const { title, sport, date, location, description, source, maxCapacity, isPrivate } =
-    req.body as {
-      title?: string; sport?: string; date?: string; location?: string;
-      description?: string; source?: string; maxCapacity?: number; isPrivate?: boolean;
-    };
+  const {
+    title, sport, date, location, description, source, maxCapacity, isPrivate,
+    recurrence, recurrenceEndDate,
+  } = req.body as {
+    title?: string; sport?: string; date?: string; location?: string;
+    description?: string; source?: string; maxCapacity?: number; isPrivate?: boolean;
+    recurrence?: string | null; recurrenceEndDate?: string | null;
+  };
   if (!title || !sport || !date || !location) {
     res.status(400).json({ message: 'Titel, Sportart, Datum und Ort sind erforderlich' });
     return;
+  }
+  // Wiederholung validieren: null/leer = einmaliges Event, sonst erlaubter Wert.
+  if (recurrence && !isValidRecurrence(recurrence)) {
+    res.status(400).json({ message: 'Ungültige Wiederholung' });
+    return;
+  }
+  const anchor = new Date(date);
+  let endDate: Date | null = null;
+  if (recurrence && recurrenceEndDate) {
+    endDate = new Date(recurrenceEndDate);
+    if (endDate <= anchor) {
+      res.status(400).json({ message: 'Enddatum muss nach dem ersten Termin liegen' });
+      return;
+    }
   }
   // Ort zu Koordinaten auflösen (best-effort) – nötig für die Karten-Pins.
   // Schlägt das Geocoding fehl, wird das Event ohne Koordinaten gespeichert.
   const coords = await geocodeLocation(location);
   const event = await prisma.event.create({
     data: {
-      title, sport, date: new Date(date), location,
+      title, sport, date: anchor, location,
       latitude: coords?.lat ?? null,
       longitude: coords?.lng ?? null,
       description, source: source ?? 'user',
       isPrivate: isPrivate ?? false,
       maxCapacity: maxCapacity ?? null,
+      recurrence: recurrence || null,
+      recurrenceEndDate: endDate,
       creatorId: req.userId!,
     },
     include: { creator: true, participations: { include: { user: true } } },

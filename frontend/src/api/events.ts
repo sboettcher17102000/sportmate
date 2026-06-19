@@ -37,6 +37,8 @@ export function createEvent(data: {
   source?: string;
   isPrivate?: boolean;
   maxCapacity?: number;
+  recurrence?: string | null;
+  recurrenceEndDate?: string | null;
 }) {
   return api.post<Event>('/events', data);
 }

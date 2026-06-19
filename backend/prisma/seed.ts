@@ -164,6 +164,34 @@ async function main() {
       maxCapacity: 20,
       creatorId: anna.id,
     },
+    // Wiederkehrende Events: Anker bewusst in der Vergangenheit, damit im Feed der
+    // berechnete *nächste* Termin erscheint (nicht der gespeicherte Anker).
+    {
+      title: 'Volleyball Ladies (wöchentlich)',
+      sport: 'Volleyball',
+      date: new Date('2026-05-05T18:30:00'),
+      location: 'Sporthalle Campus Sontheim',
+      latitude: 49.1232,
+      longitude: 9.2118,
+      description: 'Wöchentliches Training – einmal anmelden, jede Woche dabei',
+      source: 'user',
+      maxCapacity: 16,
+      recurrence: 'weekly',
+      creatorId: anna.id,
+    },
+    {
+      title: 'Lauftreff am Neckar',
+      sport: 'Laufen',
+      date: new Date('2026-05-20T07:30:00'),
+      location: 'Neckaruferpark Heilbronn',
+      latitude: 49.1455,
+      longitude: 9.218,
+      description: 'Lockerer Dauerlauf, alle 2 Wochen',
+      source: 'user',
+      maxCapacity: 30,
+      recurrence: 'biweekly',
+      creatorId: maxW.id,
+    },
   ];
 
   const createdEvents: { id: number; creatorId: number }[] = [];
@@ -201,6 +229,11 @@ async function main() {
     // Lena: nimmt nur an Events teil, in denen Max NICHT ist -> 0 gemeinsame Events
     { userId: lena.id, eventId: createdEvents[1].id },
     { userId: lena.id, eventId: createdEvents[5].id },
+    // Wiederkehrende Events: Max + Freunde sind dauerhaft angemeldet (Serie läuft weiter)
+    { userId: max.id, eventId: createdEvents[7].id },
+    { userId: anna.id, eventId: createdEvents[7].id },
+    { userId: max.id, eventId: createdEvents[8].id },
+    { userId: maxW.id, eventId: createdEvents[8].id },
   ];
 
   for (const p of participationData) {

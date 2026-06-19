@@ -27,9 +27,16 @@ export default function MyEvents() {
   }
 
   const now = new Date();
-  const upcoming = events.filter((e) => new Date(e.date) >= now);
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  // Wiederkehrende Events bleiben tagesgenau "anstehend" (wie im Feed), damit ein
+  // Termin am Eventtag nicht abends kurzzeitig als "vergangen" einsortiert wird.
+  // Das Backend liefert für aktive Serien den nächsten, für beendete den letzten Termin.
+  const isUpcoming = (e: Event) =>
+    e.recurrence ? new Date(e.date) >= startOfToday : new Date(e.date) >= now;
+  const upcoming = events.filter(isUpcoming);
   const past = events
-    .filter((e) => new Date(e.date) < now)
+    .filter((e) => !isUpcoming(e))
     .sort((a, b) => +new Date(b.date) - +new Date(a.date)); // neueste zuerst
   const attendanceRate = events.length > 0 ? 100 : 0;
 
